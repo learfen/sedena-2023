@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('./partials/header'); %>
+
+
+</head>
+<%- include('./partials/nav_bar'); %>
+
+<div class="container-fuid datos">
+    <div class="row justify-content-end heading-page heading-v3">
+        <div class="col-3">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a class="text-light" href="#">Inicio</a></li>
+                    <li class="breadcrumb-item active">Revistas</li>
+                    <li class="breadcrumb-item active">Detalle</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="col-12">
+            <div class="heading-title">
+                <h2>Detalle de Revista <%= magazine.title %></h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="row heading-page content-table pt-3">
+        <div class="col-12">
+            <table class="table table-striped magazine-table mb-3">
+                <thead class="thead-dark">
+                <tr>
+                    <th>
+                        No.
+                    </th>
+                    <th>
+                        Imagen
+                    </th>
+                    <th>
+                        Categoría
+                    </th>
+
+                </tr>
+                </thead>
+                <tbody>
+
+                <% atrticlesMagazine.forEach((article, key) => { %>
+                    <tr>
+                        <td>
+                            <%= key + 1 %>
+                        </td>
+                        <td>
+                            <% if (article.coverPage === undefined
+                                    || article.coverPage === null) { %>
+                                Sin imagen
+                            <% } else { %>
+                                <img src="/refam/api/magazine/getCoverOfArticle?imageName=<%= article.coverPage %>"
+                                     width="200">
+                            <% } %>
+                        </td>
+                        <td>
+                            Categoría: <%= article.category %>
+                        </td>
+
+
+                    </tr>
+                <tr>
+                    <% }) %>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+
+</body>
+</html>

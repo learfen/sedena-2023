@@ -1,0 +1,88 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('./partials/header'); %>
+</head>
+<body>
+    <div class="container-fluid login-container">
+        <div class="row justify-content-center">
+            <div class="col-6">
+                <img src="/refam/images/logo.png" alt="" class="cover-login-img">
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-10 col-md-5 col-lg-4">
+                <div class="login-form-container mb-2">
+                     <!-- Todo change correct method -->
+                    <form action="/refam/api/auth/signinAdmin" class="login-form" id="signin" method="POST" action2="/refam/login">
+                        <h2 class="heading-login" style="text-shadow: -1px 0 white, 0 1px white, 1px 0 gray, 0 -1px gray;">INICIO DE SESIÓN</h2>
+                        <div class="form-group">
+                            <input name="enrollment" id="enrollment" placeholder="MATRICULA" type="text" class="form-control input input-registration">
+                        </div>
+                        <div class="form-group">
+                            <input name="password" id="password"  placeholder="CONTRASEÑA" type="password" class="form-control input input-password">
+                        </div>
+                        <div class="row justify-content-end">
+                            <div class="col-6">
+                                <div class="form-check mb-1">
+                                    <input type="checkbox" class="" id="exampleCheck1">
+                                    <label class="text-light mb-0" for="exampleCheck1">Recordarme</label>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-login">Ingresar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-10 col-md-10">
+                <% if (!loginSuccesful){ %>
+                    <p class="text-center mt-1 mb-1 forgot-pass" style="color:#d32f2f;  text-shadow: -.2px 0 white, 0 .2px white, .2px 0 gray, 0 -1px gray;">
+                        Usuario o contraseña incorrectos.
+                    </p>
+                <% } %>
+                <!--
+
+                <p class="text-center mt-1 mb-1 forgot-pass">
+                    <a href="#">¿Olvidó su contraseña?</a>
+                </p>
+                <p class="text-light text-center forgot-pass">¿No tiene una cuenta?
+                    <a href="#">Solicitela</a>
+                </p>
+                -->
+            </div>
+
+        </div>
+    </div>
+
+    <script src="/refam/javascript/axios.js"></script>
+    <script>
+        let token = null
+        localStorage.setItem("token" , "")
+        document.querySelector("#signin").addEventListener("submit" , e =>{
+            e.preventDefault()
+            axios.post(location.origin + '/refam/api/auth/signinAdmin',{
+                enrollment:document.querySelector("#enrollment").value,
+                password:document.querySelector("#password").value
+            })
+            .then( res => {
+                console.log(res.data)
+                if(res.data.error){
+                    alertWarning(res.data.error)
+                }else{
+                    localStorage.setItem("token" , res.data.accessToken)
+                    localStorage.setItem("role" , res.data.role)
+                    location.href = "/refam/menu?token="+res.data.accessToken
+                }
+            })
+            .catch( err => {
+                alertWarning(err.message)
+            })
+        })
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+
+	html,body{
+		margin: 0;
+		padding: 0;
+		box-sizing: border-box;
+	}
+	#app{
+		padding: .5rem;
+	}
+	.text-editable{
+		min-height: 2rem;
+		border: 1px #aaa solid;
+		padding: .5rem;
+	}
+	.text-editable:hover{
+		background-color: #888;
+		border: 1px #888 solid;
+	}
+	.text-editable.active {
+		border: 1px blue solid;
+	}
+
+	#main, #header > div {
+		max-width: 600px;
+		margin: auto;
+		padding: 10px;
+	}
+
+	#header {
+		background: darkblue;
+		color: white;
+		text-align: center;
+		padding-top: 10px;
+	}
+
+	#toolbar {
+		text-align: center;
+		border-bottom: 1px solid rgba(0,0,0,0.3);
+        color:#fff;
+		display: flex;
+		justify-content: space-between;
+        background-color: #888;
+        height: calc(24px + 1rem);
+	}
+    #toolbar button {
+		border: 0;
+		min-width: 24px;
+		margin: 0;
+		display: inline-block;
+		text-align: center;
+	}
+
+	#toolbar select, 
+    #toolbar button,
+    #toolbar option {
+        opacity: .8;
+		height: 100%;
+        background-color: #888;
+        margin:5px;
+        padding:0px 5px;
+        background-color: transparent;
+        color:#fff
+    }
+	#toolbar button:hover,
+	#toolbar select:hover {
+        opacity: 1;
+        background-color: #666;
+    }
+
+	#content {
+		display: none;
+	}
+	#editor{
+		background-color: #fff;
+	}
+	#editorwrap, #tags, #title, #query {
+		width: 100%;
+		max-width: 100%;
+		margin-bottom: -1px;
+		outline: none;
+	}
+
+	#editorwrap.focus, #tags:focus, input:focus {
+		border-color: rgba(0,0,0,0.6);
+		position: relative;
+		outline: none;
+	}
+
+	#editorwrap{
+		position: fixed;
+		max-width: 100vw;
+		width: 640px;
+		display: none;
+		border: 1px rgba(0,0,0,.35) solid;
+		top: 0;
+		border-top-width: calc(50vh - 95px);
+		border-bottom-width: calc(50vh - 95px);
+		border-left-width: calc(50vw - 320px);
+		border-right-width: calc(50vw - 320px);
+        min-width: 100vw;
+	}
+
+	#title {
+		font-size: 1.2em;
+		font-weight: bold;
+	}
+
+	#toolbar button.ql-active {
+		background: rgba(0,0,0,0.1);
+	}
+
+	#wrapselect {
+		position: relative;
+		width: auto;
+		display: inline-block;
+	}
+
+	#wrapselect select {
+		padding: 3px 7px;
+		font-size: 14px;
+		background: transparent;
+		-webkit-appearance: none;
+		width: 90px;
+		margin: 0;
+		border: 0;
+		border-radius: 0;
+		outline: none;
+	}
+
+	#wrapselect select::-ms-expand {
+		display: none;
+	}

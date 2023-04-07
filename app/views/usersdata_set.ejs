@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('./partials/header'); %>
+
+</head>
+<body>
+<%- include('./partials/nav_bar'); %>
+
+<div class="container-fluid datos">
+    <div class="alert alert-warning" role="alert" id="result"><%= result %></div>
+    <div class="row justify-content-end heading-page heading-v1">
+        <div class="col-4">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a class="text-light" href="/refam">Inicio</a></li>
+                    <li class="breadcrumb-item"><a class="text-light" href="/refam/usuarios">Usuarios</a></li>
+                    <li class="breadcrumb-item"><a class="text-light" href="/refam/usuariosDatos">Datos</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Registro</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="col-12">
+            <div class="heading-title">
+                <h2>Crear Usuario</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="row heading-page justify-content-center pt-3 pb-1 bg-gray">
+        <div class="col-md-4 text-center">
+            <form class="form form-inline" id="signup" method="post" action="/refam/usuariosRegristro">
+                <h2>Datos Personales</h2>
+                
+                
+                <div class="form-group">
+                    <h3>Nombre Completo</h3>
+                    <div class="form-group">
+                        <input style="width:100%" id="completeName" name="completeName" type="text" required class="form-control" placeholder="">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                
+                    <h3>Matricula</h3>
+                    <div class="form-group">
+                        <input style="width:100%" id="enrollment" name="enrollment" type="text" required class="form-control" placeholder="">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                
+                    <h3>Email</h3>
+                    <div class="form-group">
+                        <input style="width:100%" id="email" name="email" type="email" class="form-control" placeholder="">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                
+                    <h3>Fecha de nacimiento</h3>
+                    <div class="form-group">
+                        <input style="width:100%" id="birthDate" name="birthDate" type="date" class="form-control" placeholder="">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                
+                    <h3>Genero</h3>
+                    <div class="form-group">
+                        <select required class="custom-select" id="gender" name="gender">
+                            <option>Seleccione una</option>
+                            <option value="masculino">Hombre</option>
+                            <option value="femenino">Mujer</option>
+                        </select>
+                    </div>
+                </div>
+
+                <h2>DATOS MILITARES</h2>
+                
+                <div class="form-group">
+                
+                    <h3>Grado</h3>
+                    <div class="form-group">
+                        <select required class="custom-select" id="grade" name="grade">
+                            <option>Seleccione una</option>
+                            
+                            <% for(var i=0; i<registrationData.grades.length; i++) { %>
+                                <option value="<%= registrationData.grades[i] %>"><%= registrationData.grades[i] %></option>
+                            <% } %>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                
+                    <h3>Especialidad</h3>
+                    <div class="form-group">
+                        <input style="width:100%" id="speciality" name="speciality" type="text" required class="form-control" placeholder="">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                
+                    <h3>Zona militar</h3>
+                    <div class="form-group">
+                        <select required class="custom-select" id="militarZone" name="militarZone">
+                            <option>Seleccione una</option>
+                            
+                            <% for(var i=0; i<registrationData.militarZones.length; i++) { %>
+                                <option value="<%= registrationData.militarZones[i] %>"><%= registrationData.militarZones[i] %></option>
+                            <% } %>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                
+                    <h3>Region militar</h3>
+                    <div class="form-group">
+                        <select required class="custom-select" id="militarRegion" name="militarRegion">
+                            <option>Seleccione una</option>
+                            
+                            <% for(var i=0; i<registrationData.militarRegions.length; i++) { %>
+                                <option value="<%= registrationData.militarRegions[i] %>"><%= registrationData.militarRegions[i] %></option>
+                            <% } %>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                
+                    <h3>Unidad</h3>
+                    <div class="form-group">
+                        <input style="width:100%" id="militarUnity" name="militarUnity" type="text" required class="form-control" placeholder="">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                
+                    <h3>Nueva Contraseña</h3>
+                    <div class="form-group">
+                        <input style="width:100%" id="password" name="password" type="password" class="form-control" placeholder="">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                
+                    <h3>Confirmar Contraseña</h3>
+                    <div class="form-group">
+                        <input style="width:100%" id="passwordConfirm" onchange="validPass" name="password-confirm" type="password" class="form-control" placeholder="">
+                    </div>
+                </div>
+                <hr>
+                <div class="form-group" style="margin-top:2rem;display:flex;justify-content: space-around;">
+                    <input style="width:100%" type="hidden" value='["user"]' name="roles" id="roles">
+                    <input style="width:100%" type="hidden" value="true" name="reload" id="reload">
+
+                    <!--<a href="/refam/usuariosDatos" class="btn text-white btn-primary">ATRAS</a>-->
+
+                    <button onclick="validSend" class="btn text-white" style="background-color: #8c2449;">Crear Usuario</button>
+					<a href="/refam/usuarios/agregar" class="btn text-white btn-primary">Cargar Excel</a>
+                </div>
+            </form>
+        </div>
+	</div>
+</div>
+<script>
+    if (result.innerHTML == "") {
+        result.style.display = "none"
+    }
+    function validPass(e){
+        if(passwordConfirm.value != password.value){
+            alert("Las contraseñas no son iguales")
+        }
+    }
+    function validSend(e){
+        if(passwordConfirm.value != password.value ){
+            e.preventDefault()
+            alert("Las contraseñas no son iguales")
+        }else{
+            const inputs = document.querySelectorAll("input[requerid]")
+            for (let index = 0; index < inputs.length; index++) {
+                if(inputs[index].value == ""){
+                    e.preventDefault()
+                    alert("Complete todos los campos")
+                    return false
+                }
+            }
+            signup.submit()
+        }
+    }
+</script>
+<style>
+    .form-group{
+        display: block;
+        width: 100%;
+    }
+    .form h3,.form h2{
+        display: block;
+        width: 100%;
+    }
+    .form h3 {
+        width: 298.5px;
+        height: 18px;
+        font-family: Montserrat;
+        font-size: 16px;
+        font-weight: 500;
+        font-stretch: normal;
+        font-style: normal;
+        line-height: 1.25;
+        letter-spacing: normal;
+        text-align: left;
+        color: #141414;
+        margin:1rem 0
+    }
+    .form h2{
+        width: 445.5px;
+        height: 38.5px;
+        font-family: GMX;
+        font-size: 22px;
+        font-weight: bold;
+        font-stretch: normal;
+        font-style: normal;
+        line-height: 1.11;
+        letter-spacing: normal;
+        text-align: center;
+        color: #8c2449;
+        margin-top: 2rem;
+    }
+</style>
+</body>
+</html>

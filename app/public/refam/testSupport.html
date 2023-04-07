@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form action="https://10.10.1.103/refam/api/support/createSupportIssue" method="POST" enctype="multipart/form-data">
+        <input type="file" name="file">
+        <input type="text" name="supportModelJsonReqBody" value="{}">
+        <input type="text" name="filesPath" value="">
+        <input type="date" name="sendDate" value="">
+        <input type="date" name="attendedDate" value="">
+        <input type="text" name="solvedDate" value="no">
+        <input type="text" name="problemDescription" value="falla">
+        <button>send</button>
+    </form>
+</body>
+<script>
+    let modelJson = {
+        clientUserMail:'learfen001@gmail.com',
+        userEnrollment:'DEV.NODE.1',
+        platform:'android',
+        appVersion:'1.1.1.1',
+        clientUserId:12,
+        supportUserId:1000,
+    }
+    document.querySelector('input[name=supportModelJsonReqBody]').value = JSON.stringify(modelJson)
+</script>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('./partials/header'); %>
+</head>
+<body>
+<%- include('./partials/nav_bar'); %>
+
+<div class="container-fuid datos">
+    <div class="row justify-content-end heading-page heading-v4">
+        <div class="col-4">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a class="text-light" href="#">Inicio</a></li>
+                    <li class="breadcrumb-item"><a class="text-light" href="#">Beneficio</a></li>
+                    <li class="breadcrumb-item active">Nuevo</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="col-12">
+            <div class="heading-title">
+                <h2>Nuevo Beneficio</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="row heading-page content-table pt-3">
+        <div class="col-12">
+            <form class="notification-form" action="/refam/api/cupons/uploadImage" method="post" enctype="multipart/form-data">
+                <div class="notifications-actions">
+                    <div class="form-group">
+                        <label for="upload-cupon" class="btn btn-secondary form-control">
+                            <input id="upload-cupon" class="" type="file" name="cuponImage" style="display:none">
+                            Cargar cupón
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label for="upload-icon" class="btn btn-secondary form-control mb-5">
+                            <input id="upload-icon" class="" type="file" name="cuponIcon" style="display:none">
+                            Cargar ícono
+                        </label>
+                    </div>
+                </div>
+                <input type="text" class="input-notification" name="description" placeholder="Escriba el texto a mostar en pantalla">
+                <div class="row">
+                    <div class="col-6"><button class="btn btn-primary">Guardar borrador</button></div>
+                    <div class="col-6"><button class="btn btn-primary" type="submit" >Publicar</button></div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

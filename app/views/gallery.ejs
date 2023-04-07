@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('./partials/header'); %>
+</head>
+<body>
+<%- include('./partials/nav_bar'); %>
+
+<div class="container-fluid datos" id="app">
+    <div class="row justify-content-end heading-page heading-v1">
+        <div class="col-4">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a class="text-light" href="/refam/menu">Inicio</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Galería</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="col-12">
+            <div class="heading-title">
+                <h2 @click="test">Galería</h2>
+            </div>
+        </div>
+    </div>
+    <div>
+        <div :class="['albums active' , !albumRenderized ? '' : 'inactive' ]" >
+            <div class="d-flex align-content-stretch flex-wrap justify-content-between">
+                <div class="d-flex p-3 m-3 bg-primary" style="width: 15rem;max-width: 15rem;">
+                    <div v-if="albumTargeted">
+                        <button class="btn btn-sm btn-danger" @click="untargetAll">Deseleccionar todo</button>
+                        <hr>
+                        <button class="btn btn-sm btn-danger" @click="removeAlbum">Eliminar ({{albumTargeted}})</button>
+                    </div>
+                    <div v-else class="mx-1 d-flex" style="flex-direction:column;justify-content: space-between;">
+                        <div>
+                            <h3 class="text-white">ALBUMNES</h3>
+                            <p class="text-white">Cant: {{ albums.length}}</p>
+                        </div>
+                        <div>
+                            <span v-if="uploadProccess=='Subiendo' || uploadProccess=='Completado'" class="btn btn-danger">{{uploadProccess}} [{{uploadCursor}}/{{$refs.coverUpload.files.length}}] </span>
+                            <button v-if="uploadProccess=='Completado'" @click="uploadMediaComplete" class="btn btn-danger">OK</button>
+                            <button v-if="uploadProccess==''" @click="$refs.coverUpload.click()" class="btn btn-danger">+</button>
+                            <input @change="uploadMedia" style="display: none;" ref="coverUpload" multiple type="file">
+                        </div>
+                    </div>
+                </div>
+                <div v-for="album of albums" :class="[album.ui.target ? 'bg-primary':'']" style="background-color:#ddd;margin:1rem;box-shadow: 2px 2px 2px #333;box-sizing: border-box;padding:.5rem;">
+                        <div>
+                            <button v-if="album.name != 'Galería Fotográfica'" class="btn btn-small btn-info position-absolute" @click="$event.target.nextElementSibling.click()" style="border-start-start-radius: 0;" >Cover</button>
+                            <input style="display: none;" type="file" @change="uploadMedia" name="cover" :album="album.id" >
+                            <img loading="lazy" style="width:auto;height:18rem;display:block;background-color:#333" @click="album.ui.target=!album.ui.target" @dblClick="openAlbum" :album="album.id" :src="'/refam/thumb/?dir=gallery&src=' + album.cover.src">
+                        </div>
+                        <div style="margin-top:.5rem;border-left:5px #333 solid;padding-right:5px;background-color:#fff">
+                            <div attr="name" @focus="focusDivEditable" @blur="blurDivEditable" :album="album.id" style="border-radius:0;background-color: transparent;text-align:left;word-wrap: break-word;display:block;white-space: break-spaces;max-height: 3.5rem;overflow-y: auto;" class="btn" contenteditable="true" >{{album.name}}</div>
+                        </div>
+                </div>
+            </div>
+        </div>
+
+        <div :class="['bg-white albums' , albumRenderized ? 'active' : 'inactive' ]" >
+            <div class="d-flex align-content-stretch flex-wrap justify-content-between">
+                <div class="d-flex p-3 m-3 bg-primary" style="width: 15rem;max-width: 15rem;">
+                    <div v-if="mediaTargeted">
+                        <button class="btn btn-sm btn-danger" @click="untargetAll">Deseleccionar todo</button>
+                        <hr>
+                            <select v-model="albumSelect" class="m-2" style="max-width:100%">
+                                <option v-for="album of albums.filter( album => album.id != 0)" :value="album.id">Mover a: {{album.name}}</option>
+                            </select>
+                            <button class="btn btn-sm btn-danger" @click="teleportMedias">Mover ({{mediaTargeted}})</button>
+                        <hr>
+                        <button class="btn btn-sm btn-danger" @click="removeMedias">Eliminar ({{mediaTargeted}})</button><hr>
+                        <button class="btn btn-sm btn-danger" v-if="mediaTargeted == 2"> Intercambiar posición</button>
+                    </div>
+                    <div v-else class="mx-1 d-flex" style="flex-direction:column;justify-content: space-between;">
+                        <div><button @click="closeAlbum" class="btn btn-sm btn-danger"><-</button></div>
+                        <div>
+                            <h3 class="text-white">{{albumRender.name}}</h3>
+                            <p class="text-white">Cant: {{ albumRender == 0 ? '' : albumRender.medias.length}}</p>
+                        </div>
+                        <div>
+                            <span v-if="uploadProccess=='Subiendo' || uploadProccess=='Completado'" class="btn btn-danger">{{uploadProccess}} [{{uploadCursor}}/{{$refs.imageUpload.files.length}}] </span>
+                            <li class="text-white m-2" v-for="mediaError of uploadMediasError">Error al subir: {{ mediaError }}</li>
+                            <button v-if="uploadProccess=='Completado'" @click="uploadMediaComplete" class="btn btn-danger">OK</button>
+                            <button v-if="uploadProccess==''" @click="$refs.imageUpload.click()" class="btn btn-danger">+</button>
+                        </div>
+                    </div>
+                    <input style="display: none;" ref="imageUpload" type="file" multiple @change="uploadMedia">
+                </div>
+                <div v-for="(media , index) of albumRender.medias" :class="[media.ui.target ? 'bg-primary':'']" style="background-color:#ddd;margin:1rem;box-shadow: 2px 2px 2px #333;box-sizing: border-box;padding:.5rem;">
+                    <div v-if="(media.src.split('.').pop()) == 'mp4'">
+                        <button class="btn btn-small btn-info position-absolute" style="border-start-start-radius: 0;" @click="mediaPlay">Play/Pause</button>
+                        <video style="height:18rem" @click="media.ui.target=!media.ui.target" :media="media.id" :src="'/refam/video/' + media.src"></video>
+                    </div>
+                    <img  loading="lazy" v-else style="width:auto;height:18rem;display:block" @click="media.ui.target=!media.ui.target"  @dblClick="imageOpen=index" :media="media.id" :src="'/refam/thumb/?dir=gallery&src=' + media.src">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div v-if="imageOpen > -1" class="position-fixed" style="top:0;z-index:1000;width: 100vw;height: 100vh;background-color: rgba(0,0,0,.85);">
+        <button class="btn btn-small btn-info position-absolute m-3" style="border-start-start-radius: 0;" @click="imageOpen= -1 ">x</button>
+        <div class="justify-content-center">
+            <button v-if="imageOpen > 0" @click="imageOpen--" class="btn btn-small btn-info position-fixed m-3" style="top:50%;left:1rem;right:auto"> < </button>
+            <div class=" justify-content-center" style="width: 100vw;height: 100vh;">
+                <img :src="'/refam/thumb/?dir=gallery&original=true&src=' + albumRender.medias[imageOpen].src" style="display: block;width: auto;height: 100%;max-width: 100vw;max-height: 100vh;">
+            </div>
+            <button v-if="albumRender.medias.length > imageOpen + 1" @click="imageOpen++" class="btn btn-small btn-info position-fixed m-3" style="top:50%;left:auto;right:1rem"> > </button>
+        </div>
+    </div>
+        <!--
+        <div class="row heading-page justify-content-center pt-3 pb-1 bg-gray">
+            <div class="col-md-3 text-center">
+                <a hrf="#" class="btn btn-danger text-white">Cargar Nuevo</a>
+            </div>
+            <div class="col-4">
+                <form class="form-inline">
+                    <div class="form-group mb-2">
+                        <select class="custom-select">
+                            <option>Acciones en lote</option>
+                        </select>
+                    </div>
+                    <div class="form-group mb-2">
+                        <button type="submit" class="btn btn-primary ml-2">Aplicar</button>
+                    </div>
+                </form>
+            </div>
+            <div class="col-4">
+                <form class="form-inline">
+                    <div class="form-group mb-2">
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="Consulta">
+                        </div>
+                    </div>
+                    <div class="form-group mb-2">
+                        <button type="submit" class="btn btn-primary ml-2">Buscar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="row heading-page align-items-end">
+            <div class="col-md-7">
+                <ul id="imageListId" class="gallery-grid">
+
+                    <% i=1; galleryImages.forEach((image, key) => { %>
+                        <li class="gallery-item" style="display: inline-block">
+                            <span class="delete" deleteapi="<%= image.id %>">x</span>
+                            <img id="gimg-<%= i %>" width="150" height="150" src="/refam/api/gallery/get?imageName=<%= image.name %>">
+
+                        </li>
+                    <% i++ }) %>
+                </ul>
+            </div>
+            <div class="col-md-5 pt-5">
+                <div id="square-preview" class="square-preview"></div>
+                <form class="custom-gallery-form" action="/refam/api/gallery/uploadMedia" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <input class="btn btn-secondary form-control" type="submit" value="Cargar Imágenes">
+                    </div>
+                    <div class="form-group">
+                        <label for="gallery-photo-add" class="btn btn-primary form-control">
+                            <input id="gallery-photo-add" multiple class="" type="file" name="image" style="display: none;">
+                            Seleccionar
+                        </label>
+                    </div>
+                </form>
+            </div>
+        </div>
+        -->
+</div>
+<script src="/refam/javascript/axios.js"></script>
+<script src="/refam/javascript/vue.js"></script>
+<script>
+
+    new Vue({
+        el:'#app',
+        data(){ return {
+            albumRender:0,
+            updateCover:0,
+            uploadCursor:0,
+            uploadMediaError:0,
+            uploadProccess:'',
+            uploadMediasError:[],
+            albumSelect:null,
+            albums:[],
+            imageOpen:-1
+        }},
+        computed:{
+            albumRenderized(){
+                return ( this.albumRender != 0 )
+            },
+            albumTargeted(){
+                return this.albums.filter( album => album.ui.target ).length
+            },
+            mediaTargeted(){
+                if(typeof this.albumRender != 'object') return false 
+                return this.albumRender.medias.filter( media => media.ui.target ).length
+            }
+        },
+        methods:{
+            test(){
+                alert('hola')
+            },
+            focusDivEditable( event ){
+                event.target.setAttribute('value' , event.target.innerText )
+            },
+            blurDivEditable( event ){
+                let value = event.target.getAttribute('value')
+                if( value != event.target.innerText ){
+                    event.target.setAttribute('value' , event.target.innerText )
+                    this.change( event )
+                }
+            },
+            change( event ){
+                event.target.classList.add('text-warning')
+                let name = event.target.getAttribute('attr')
+                axios.put('/refam/api/album/explorer/'+event.target.getAttribute('album') , {keys:['name'] , [name]:event.target.innerText})
+                .then( ({data}) => {
+                    console.log( data ) 
+                    event.target.classList.remove('text-warning')
+                 } )
+                .catch( error =>{
+                    alertWarning( error )
+                })
+            },
+            removeAlbumGui(){
+                let ids = []
+                this.albums = this.albums.filter( album => {
+                    if(album.ui.target) ids.push(album.id)
+                    return !album.ui.target
+                })
+                return ids
+            },
+            removeAlbum( select , i , errors){
+                i = i ?? 0
+                select = Array.isArray( select ) ? select : this.removeAlbumGui()
+                errors = errors ?? []
+                if( i < select.length){
+                    const next = ()=>{ this.removeAlbum( select , ++i , errors ) }
+                    axios.delete('/refam/api/album/explorer/'+select[i])
+                        .then( ({data}) => next() )
+                        .catch( error =>{
+                            errors.push( select[i] )
+                            next()
+                        })
+                }else{
+                    this.albums = this.albums.map( album => {
+                        if(errors.indexOf( album.id ) > -1 ) 
+                            album.ui.target = true
+                        return album
+                    })
+                }
+            },
+            removeMediasGui(){
+                let ids = []
+                this.albums = this.albums.map( album => {
+                    album.medias = album.medias.filter( media =>{
+                        if(media.ui.target) ids.push( media )
+                        return !media.ui.target
+                    } )
+                    return album
+                })
+                return ids
+            },
+            removeMedias( select , i , errors){
+                i = i ?? 0
+                select = Array.isArray( select ) ? select : this.removeMediasGui()
+                errors = errors ?? []
+                if( i < select.length){
+                    const next = ()=>{ this.removeMedias( select , ++i , errors ) }
+                    console.log( '/refam/api/album/explorer-media/'+select[i].id +`?type=${(select[i].name.split('.').pop()) == 'mp4' ? 'video' : 'img'}` )
+                    axios.delete('/refam/api/album/explorer-media/'+select[i].id +`?type=${(select[i].name.split('.').pop()) == 'mp4' ? 'video' : 'img'}`)
+                        .then( ({data}) => next() )
+                        .catch( error =>{
+                            errors.push( select[i].name )
+                            next()
+                        })
+                }else{
+                    this.albums = this.albums.map( album => {
+                        if(errors.indexOf( album.id ) > -1 ) 
+                            album.ui.target = true
+                        return album
+                    })
+                }
+            },
+            teleportMedias( select , i , errors){
+                i = i ?? 0
+                select = Array.isArray( select ) ? select : this.removeMediasGui()
+                errors = errors ?? []
+                if( i < select.length){
+                    const next = ()=>{ this.teleportMedias( select , ++i , errors ) }
+                    axios.put('/refam/api/album/explorer-media/'+select[i].id +`?explorerId=${this.albumSelect}&type=${(select[i].name.split('.').pop()) == 'mp4' ? 'video' : 'img'}`)
+                        .then( ({data}) => next() )
+                        .catch( error =>{
+                            errors.push( select[i].name )
+                            next()
+                        })
+                }else{
+                    this.albums = this.albums.map( album => {
+                        if(errors.indexOf( album.id ) > -1 ) 
+                            album.ui.target = true
+                        return album
+                    })
+                }
+            },
+            updateCoverAlbum( updateCoverId , media ){
+                axios.put('/refam/api/album/explorer/'+updateCoverId , {keys:['cover'] , cover:media.name})
+                .then( ({data}) => {
+                    this.uploadProccess = ''
+                    this.albums = this.albums.map( album => {
+                        if(album.id == updateCoverId){
+                            album.cover = {id:media.id , src:media.name , ui:{ target:false }}
+                        }
+                        return album
+                    })
+                 } )
+                .catch( error =>{
+                    alertWarning( error )
+                })
+            },
+            getAlbum( id ){
+                let albums = this.albums
+                let select = id == undefined ? '?unsorted=true' : '/'+id
+                axios.get('/refam/api/album/explorer' + select)
+                .then( ({data}) => { 
+                    if(select == '?unsorted=true'){
+                        data.map( album => {
+                            album['ui'] = {target: false}
+                            album.cover = {src: album.cover}
+                            album['medias'] = []
+                            albums.push( album )
+                        })
+                    }else{
+                        data.medias = data.medias.map( media => {
+                            media.ui = {target:false}
+                            media.src = media.name
+                            return media
+                        } )
+                        this.albumRender.medias = [...data.medias]
+                    }
+                })
+                .catch( error => alertWarning( error.message ) )
+            },
+            openAlbum( event ){
+                this.albumRender = this.albums.filter( album => (album.id == event.target.getAttribute('album')) )[0]
+                this.getAlbum( this.albumRender.id )
+            },
+            closeAlbum( event ){
+                this.albumRender = 0
+            },
+            untargetAll(){
+                if( this.albumRender === 0){
+                    console.log('untarget albums')
+                    this.albums.map( album => album.ui.target = false )
+                }else{
+                    console.log('untarget medias')
+                    this.albumRender.medias.map( media => {
+                        media.ui.target = false
+                        return media
+                    } )
+                }
+            },
+            uploadMediaComplete(){
+                this.uploadMediaError = 0
+                this.uploadCursor = 0
+                this.uploadMediasError = []
+                this.uploadProccess=''
+            },
+            uploadMedia( event ){
+                if(event.target.getAttribute('name') == 'cover'){
+                    this.updateCoverId = event.target.getAttribute('album')
+                }
+                this.uploadProccess = 'Subiendo'
+                const uploadMediaComplete = ()=>{
+                    this.uploadProccess = 'Completado'
+                }
+                const evalUploadProccess = (event , cursor ) =>{
+                    if( cursor < event.target.files.length ) {
+                        setTimeout( ()=>{
+                            this.uploadMedia( event )
+                        } , 1000 )
+                    }
+                    else uploadMediaComplete()
+                }
+                const uploadError = error => {
+                    this.uploadMediaError++
+                    if( this.uploadMediaError < 3) evalUploadProccess(event , this.uploadCursor)
+                    else {
+                        this.uploadMediasError.push(event.target.files[this.uploadCursor].name)
+                        evalUploadProccess(event , ++this.uploadCursor)
+                    }
+                }
+                let data = new FormData();
+                data.append('fileid', event.target.files[this.uploadCursor]);
+                let dir = ( ( event.target.files[this.uploadCursor].name.split('.').pop() ).toLowerCase() == 'mp4' ) ? 'library' : 'gallery'
+                let url = '/refam/api/media/save?dir='+dir+'&album='
+                if( this.updateCoverId ) url += this.updateCoverId
+                else url = this.albumRender === 0 ? url + 'new' : url + this.albumRender.id
+                axios.post( url , data ,
+                    { headers: {
+                            'accept': 'application/json',
+                            'Content-Type': `multipart/form-data`,
+                    } })
+                    .then( ( { data } ) => {
+                        console.log( data )
+                        if( data.error ){
+                            uploadError(data.error)
+                        }else{
+                            if( this.updateCoverId > 0){
+                                this.updateCoverAlbum( this.updateCoverId , data.media ) 
+                                this.uploadMediaError = 0
+                                this.updateCoverId = 0
+
+                            }else{
+                                if( this.albumRender === 0 )
+                                    this.albums.unshift( {name:'Nuevo' , ui:{target:false}, cover:{id:data.media.id , src:data.media.name , ui:{ target:false }}, medias:[]} )
+                                else this.albumRender.medias.unshift( {id:data.media.id , src:data.media.name , ui:{ target:false }} )
+                                this.uploadMediaError = 0
+                                this.updateCoverId = 0
+                                evalUploadProccess(event , ++this.uploadCursor)
+                            }
+                        }
+                    } )
+                    .catch( uploadError )
+            },
+            mediaPlay( event ){
+                if( event.target.nextElementSibling.classList.contains('play') ){
+                    event.target.nextElementSibling.classList.remove('play')
+                    event.target.nextElementSibling.pause()
+                }else{
+                    event.target.nextElementSibling.classList.add('play')
+                    event.target.nextElementSibling.play()
+                }
+            }
+        },
+        mounted(){
+            document.body.addEventListener('keyup' , event => {
+                if( event.key == 'Delete'){
+                    if( this.albumRenderized && confirm("Esta intentando eliminar una imagen"))
+                        this.removeMedias()
+                    else if( !this.albumRenderized && confirm("Si elimina un album se eliminaran las imagen en su interior"))
+                        this.removeAlbum()
+                        
+                }
+            } , false)
+
+            this.getAlbum()
+        }
+    })
+/*
+    $('#gallery-photo-add').change(function(){
+        $('#square-preview').empty();
+        for(let i=0; i<Object.keys(this.files).length;i++){
+            const file = this.files[i]
+            if (file){
+                $('#square-preview').append(`<img id='img-prev${i}' style='width:100px!important; height: 100px; margin-left:5px; margin-bottom:5px;' src='' />`)
+                const reader = new FileReader()
+                reader.onload = function(){
+                    $('#img-prev'+i).attr('src',this.result);
+                }
+                reader.readAsDataURL(file)
+            }
+        }
+    })
+    
+    $('img').on("click", function (e) {
+        $('#square-preview').empty();
+        var current_img = this.src;
+        var img_container = $('#square-preview');
+        $($.parseHTML('<img>')).attr('src', this.src).appendTo($('#square-preview'));
+    });
+
+   
+//});
+
+$('img[id^=gimg-]').each(function(){
+	let idAux = $(this).attr("id").replace('gimg-','')
+	$('#gimg-'+idAux).click(function(){
+		let src = $('#gimg-'+idAux).attr('src')
+		$('.gallery').empty().append('<img src="'+src+'">')
+		$(".gallery img").css("width", "100%")
+		$(".gallery img").css("height", "100%")
+	})
+    })
+
+
+    const btnDelete = document.querySelectorAll("span[deleteapi]")
+    for(let btn of btnDelete){
+        btn.addEventListener('click' , function(e){
+            axios.delete("/refam/api/gallery/image/"+e.target.getAttribute("deleteapi"),
+                { headers: { 'Authorization': localStorage.getItem("token") } }
+            ).then( res => {
+                if(res.data.error != undefined){
+                    alertWarning( res.data.error )
+                }else{
+                    alertSuccess( "Borrado" )
+                    e.target.parentNode.remove()
+                }
+            })
+            .catch( error => {
+                alertWarning( error )
+            })
+            
+        })
+    }
+    */
+</script>
+<style>
+    *{
+        transition: .5s all;
+    }
+    .albums{
+        display: none;
+    }
+    .albums.active{
+        display: flex;
+    }
+    .albums.active.inactive{
+        display: none;
+    }
+    .bg-primary{
+        background-color:#621132 !important
+    }
+</style>
+</body>
+</html>

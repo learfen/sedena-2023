@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('./partials/header'); %>
+    <link rel="stylesheet" href="https://unpkg.com/grapesjs/dist/css/grapes.min.css">
+    <!--<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100&display=swap" rel="stylesheet">-->
+    <script src="https://unpkg.com/grapesjs"></script>
+
+    <style>
+        .btn-file {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-file input[type=file] {
+            position: absolute;
+            top: 0;
+            color: #033aa9;
+            right: 0;
+            min-width: 100%;
+            min-height: 100%;
+            font-size: 100px;
+            text-align: right;
+            filter: alpha(opacity=0);
+            opacity: 0;
+            outline: none;
+            background: white;
+            cursor: inherit;
+            display: block;
+        }
+
+        #img-upload {
+            width: 100%;
+        }
+
+
+        /* Let's highlight canvas boundaries */
+        #gjs {
+            border: 3px solid #444;
+        }
+
+        /* Reset some default styling */
+        .gjs-cv-canvas {
+            top: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .gjs-block {
+            width: auto;
+            height: auto;
+            min-height: auto;
+        }
+
+        .panel__top {
+            padding: 0;
+            width: 100%;
+            display: flex;
+            position: initial;
+            justify-content: center;
+            justify-content: space-between;
+        }
+
+        .panel__basic-actions {
+            position: initial;
+        }
+
+        .editor-row {
+            display: flex;
+            justify-content: flex-start;
+            align-items: stretch;
+            flex-wrap: nowrap;
+            height: 100vh;
+        }
+
+        .editor-canvas {
+            flex-grow: 1;
+        }
+
+        .main-canvas {
+            height: 600px;
+        }
+
+        .panel__right {
+            flex-basis: 400px;
+            position: relative;
+            overflow-y: auto;
+        }
+
+        .panel__switcher {
+            position: initial;
+        }
+
+        .panel__devices {
+            position: initial;
+        }
+
+        .template {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        @font-face {
+            font-family: 'gmxbold';
+            src: url('/refam/fontsCustom/gmx-webfont.woff2') format('woff2'),
+            url('/refam/fontsCustom/gmx-webfont.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        .current-magazine {
+            position: absolute;
+            top: 105px;
+            left: 11%;
+            color: #fff;
+            z-index: 200;
+        }
+
+    </style>
+</head>
+<body class="container-xl">
+<%- include('./partials/nav_bar'); %>
+<div class="current-magazine"></div>
+<div class="panel__top">
+    <div class="panel__basic-actions"></div>
+    <div class="panel__devices"></div>
+    <div class="panel__switcher"></div>
+</div>
+<div class="editor-row">
+    <div class="editor-canvas">
+        <div id="gjs"></div>
+    </div>
+    <div class="panel__right">
+        <div class="magazine-container">
+            <div id="articles">
+                <h3 class="title"></h3>
+                <h5>Articulos</h5>
+                <div class="list" style="height: 480px;overflow-y: scroll;"></div>
+            </div>
+            <h3>PUBLICACIONES</h3>
+            <div class="list" id="magazines"></div>
+        </div>
+        <div class="layers-container"></div>
+        <div class="styles-container"></div>
+        <div class="traits-container"></div>
+        <div class="blocks-container"></div>
+    </div>
+</div>
+
+
+
+</div>
+
+
+<!-- Modal Artuculo -->
+<div class="modal fade" id="myModal" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content" id="myModal1">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Datos del Artículo</h4>
+            </div>
+            <div class="modal-body">
+                <!--  <p>Some text in the modal.</p>-->
+
+
+                <form id="newArticleForm">
+
+                    <div class="container">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Imagen de Artículo</label>
+                                <div class="input-group">
+                                    <span class="input-group-btn">
+                                        <span class="btn btn-default btn-file">
+                                            Seleccionar… <input name="imgArticle" type="file" id="imgArticle">
+                                        </span>
+                                    </span>
+                                    <input type="text" class="form-control" readonly>
+                                </div>
+                                <img id='img-upload'/>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">Categoría</label>
+                        <input type="text" class="form-control" id="articleCat" placeholder="Categoría">
+                        <!-- <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>-->
+                    </div>
+
+                    <div class="form-group">
+                        <input name="magazineId" id="magId" type="hidden" class="form-control" value="0">
+                    </div>
+
+                    <!--   <button type="submit" class="btn btn-primary">Submit</button>   -->
+
+                    <!--
+                    <div class="form-group">
+                   <label for="exampleInputPassword1">Password</label>
+                   <input type="text" class="form-control" id="exampleInputPassword1" placeholder="Password">
+                 </div>
+
+
+                 <div class="form-check" >
+                   <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                   <label class="form-check-label" for="exampleCheck1">Check me out</label>
+                 </div>
+
+                 -->
+
+                </form>
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="createArticleReq()">
+                    Guardar
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+</div>
+
+<script src="https://unpkg.com/grapesjs"></script>
+<script src="/refam/javascript/panel__right.js"></script>
+<script src="/refam/javascript/panel__switcher.js"></script>
+<script src="/refam/javascript/panel__devices.js"></script>
+<script src="/refam/javascript/blockManager.js"></script>
+<script src="/refam/javascript/axios.js"></script>
+<style>
+    .magazine-container .list , #articles .list{
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+    .magazine-container .list>div, #articles .list>div{
+        width:150px;
+    }
+    .magazine-container .list>div>a, #articles .list>div>a{
+        background-color:#aaa;
+        padding:.5rem;
+        margin:.5rem;
+        width:150px;
+        display:inline-block;
+        background-size: cover;
+        height: 200px;
+    }
+    
+    .magazine-container .list>div>a>div, #articles .list>div>a>div{
+        word-break: break-word;background-color: rgba(0,0,0,.85);padding: 5px;color: #fff;
+    }
+
+    #articles{
+        margin:.5rem 0;
+        padding: .5rem;
+        border:1px #fff solid
+    }
+
+</style>
+<script>
+    let editor = null
+    let articleIdSave = null
+    let articleIdSaveFile = null
+    let btnUpdateArticle = document.createElement("span")
+    let btnSaveMagazine = document.querySelector("#btnSaveMagazine")
+    btnUpdateArticle.className = "gjs-pn-btn"
+    btnUpdateArticle.innerHTML = "Actualizar articulo"
+    btnUpdateArticle.addEventListener('click' , function(){
+        const htmlNew =  editor.getHtml();
+        const stylesNew =  editor.getCss()
+        axios.post("/refam/api/magazine/setHtml/"+articleIdSave , {articleIdSaveFile , htmlNew, stylesNew} )
+        .then( res => {
+            alertSuccess("Guardado")
+        }).catch(function (error) {
+            alertWarning("INTENTE EN OTRO MOMENTO O COMUNIQUESE CON EL DESARROLLADOR\n" + error)
+        })
+    } , false )
+    const serverUrl = getServerUrl()
+    let editorConfig = {
+        // Indicate where to init the editor. You can also pass an HTMLElement
+        container: '#gjs',
+        // Get the content for the canvas directly from the element
+        // As an alternative we could use: `components: '<h1>Hello World Component!</h1>'`,
+        fromElement: true,
+        canvas: {
+            scripts: [],
+            styles: [
+                serverUrl + "css/style.css"
+            ]
+        },
+        // Size of the editor
+        height: '100vh',
+        width: 'auto',
+        storageManager: {
+            id: 'gjs-',             // Prefix identifier that will be used on parameters
+            type: 'local',          // Type of the storage
+            autosave: true,         // Store data automatically
+            autoload: true,         // Autoload stored data on init
+
+            stepsBeforeSave: 1,     // If autosave enabled, indicates how many changes are necessary before store method is triggered
+            
+        },
+        deviceManager: {
+            devices: [{
+                name: 'Mobile',
+                width: '565',
+                widthMedia: '',
+            }, {
+                name: 'Desktop',
+                width: '',
+                widthMedia: '1024',
+            }]
+        },
+        magazinekManager: {
+            appendTo: '.magazine-container',
+            blocks: [
+                base_magazine(), 
+        ]},
+        blockManager: {
+            appendTo: '.blocks-container',
+            blocks: [
+                base_template(), 
+                base_template2(), 
+                base_template3(), 
+                base_template4(), 
+                base_template5(), 
+                base_template6(), 
+                base_template7(), 
+                base_template8(), 
+                base_template9(),
+                base_template10(), 
+                base_template11(), 
+                base_template12(), 
+                base_template13(), 
+                base_template14(), 
+                base_template15(), 
+                base_template16(), 
+                base_template17(), 
+                base_template18(), 
+                base_template19(),
+                base_template20(), 
+                base_template21(), 
+                base_template22(), 
+                base_template23(), 
+                base_template24(),
+                {
+                    id: 'text',
+                    label: 'Parrafo',
+                    category: 'Elementos Generales',
+                    content: '<p>Con estas acciones, ambas dependencias refrendan su compromiso</p>',
+                }, {
+                    id: 'heading',
+                    label: 'Encabezado',
+                    category: 'Elementos Generales',
+                    content: '<h2>Las Secretarías de Relaciones Exteriores y Defensa Nacional realizan vuelo humanitario </h2>',
+                }, {
+                    id: 'image',
+                    label: 'Imagen',
+                    category: 'Elementos Generales',
+                    // Select the component once it's dropped
+                    select: true,
+                    // You can pass components as a JSON instead of a simple HTML string,
+                    // in this case we also use a defined component type `image`
+                    content: {type: 'image'},
+                    // This triggers `active` event on dropped components and the `image`
+                    // reacts by opening the AssetManager
+                    activate: true,
+                }, {
+                    id: 'video',
+                    label: 'Video',
+                    category: 'Elementos Generales',
+                    select: true,
+                    content: {type: 'video'},
+                    activate: true,
+                }
+            ]
+        },
+        magazineManager: {
+            appendTo: '.magazine-container'
+        },
+        layerManager: {
+            appendTo: '.layers-container'
+        },
+        // We define a default panel as a sidebar to contain layers
+        panels: {
+            defaults: [
+                panel__right(),
+                panel__switcher(),
+                panel__devices()
+            ]
+        },
+        selectorManager: {
+            appendTo: '.styles-container'
+        },
+        styleManager: {
+            appendTo: '.styles-container',
+            sectors: [{
+                name: 'Capas',
+                open: false,
+                // Use built-in properties
+                buildProps: ['width', 'height', 'min-width', 'min-height', 'padding', 'margin'],
+                // Use `properties` to define/override single property
+                properties: [
+                    {
+                        // Type of the input,
+                        // options: integer | radio | select | color | slider | file | composite | stack
+                        type: 'integer',
+                        name: 'Ancho', // Label for the property
+                        property: 'width', // CSS property (if buildProps contains it will be extended)
+                        units: ['px', '%'], // Units, available only for 'integer' types
+                        defaults: 'auto', // Default value
+                        min: 0, // Min value, available only for 'integer' types
+                    },
+                    {
+                        property: 'min-width',
+                        name: 'Ancho mínimo'
+                    },
+                    {
+                        property: 'min-height',
+                        name: 'Alto mínimo'
+                    },
+                    {
+                        property: 'padding',
+                        name: 'Espacio interno',
+                        properties: [
+                            {
+                                property: 'padding-top',
+                                name: 'Arriba',
+                            },
+                            {
+                                property: 'padding-right',
+                                name: 'Derecha',
+                            },
+                            {
+                                property: 'padding-bottom',
+                                name: 'Abajo',
+                            },
+                            {
+                                property: 'padding-left',
+                                name: 'Izquierda',
+                            }
+                        ]
+
+                    },
+                    {
+                        property: 'margin',
+                        name: 'Espacio externo',
+                        properties: [
+                            {
+                                property: 'margin-top',
+                                name: 'Arriba',
+                            },
+                            {
+                                property: 'margin-right',
+                                name: 'Derecha',
+                            },
+                            {
+                                property: 'margin-bottom',
+                                name: 'Abajo',
+                            },
+                            {
+                                property: 'margin-left',
+                                name: 'Izquierda',
+                            }
+                        ]
+                    },
+
+                ]
+            }, {
+                name: 'Posición',
+                buildProps: ['position'],
+                properties: [
+                    {
+                        property: 'position',
+                        name: 'Posición',
+                        list: [
+                            {value: 'static', name: 'Estática'},
+                            {value: 'relative', name: 'Relativa'},
+                            {value: 'absolute', name: 'Absoluta'},
+                            {value: 'fixed', name: 'Fija'}
+                        ]
+                    },
+                    {
+                        type: 'integer',
+                        name: 'Arriba', // Label for the property
+                        property: 'top', // CSS property (if buildProps contains it will be extended)
+                        units: ['px', '%', 'vh'], // Units, available only for 'integer' types
+                        defaults: 'auto', // Default value
+                        min: 0, // Min value, available only for 'integer' types
+                    },
+                    {
+                        type: 'integer',
+                        name: 'Derecha', // Label for the property
+                        property: 'rigth', // CSS property (if buildProps contains it will be extended)
+                        units: ['px', '%', 'vh'], // Units, available only for 'integer' types
+                        defaults: 'auto', // Default value
+                        min: 0, // Min value, available only for 'integer' types
+                    },
+                    {
+                        type: 'integer',
+                        name: 'Abajo', // Label for the property
+                        property: 'bottom', // CSS property (if buildProps contains it will be extended)
+                        units: ['px', '%', 'vh'], // Units, available only for 'integer' types
+                        defaults: 'auto', // Default value
+                        min: 0, // Min value, available only for 'integer' types
+                    },
+                    {
+                        type: 'integer',
+                        name: 'Izquierda', // Label for the property
+                        property: 'left', // CSS property (if buildProps contains it will be extended)
+                        units: ['px', '%', 'vh'], // Units, available only for 'integer' types
+                        defaults: 'auto', // Default value
+                        min: 0, // Min value, available only for 'integer' types
+                    },
+                ]
+            }, {
+                name: 'Tipografía',
+                open: false,
+                buildProps: ['font-family', 'font-size', 'font-weight', 'letter-spacing', 'color', 'text-decoration'],
+                properties: [
+                    {
+                        property: 'text-align',
+                        type: 'radio',
+                        name: 'Alineación de texto',
+                        defaults: 'left',
+                        list: [
+                            {value: 'left', name: 'Izquierda', className: 'fa fa-align-left'},
+                            {value: 'center', name: 'Centrado', className: 'fa fa-align-center'},
+                            {value: 'right', name: 'Derecha', className: 'fa fa-align-right'},
+                            {value: 'justify', name: 'Justificado', className: 'fa fa-align-justify'}
+                        ],
+                    },
+                    {
+                        property: 'font-weight',
+                        name: 'Ancho de fuente'
+                    },
+                    {
+                        property: 'letter-spacing',
+                        name: 'Espaciado de letra'
+                    },
+
+                    {
+                        property: 'font-family',
+                        name: 'Fuente',
+                        list: [
+                            {name: 'Arial', value: 'Arial, Helvetica, sans-serif'},
+                            {name: 'Montserrat', value: 'monserratreg'},
+                            {name: 'GMX', value: 'gmxbold'}
+                        ]
+                    },
+                    {
+                        property: 'text-decoration',
+                        type: 'radio',
+                        name: 'Decoración de texto',
+                        defaults: 'none',
+                        list: [
+                            {value: 'none', name: 'Ninguna', className: 'fa fa-times'},
+                            {value: 'underline', name: 'Subrayado', className: 'fa fa-underline'},
+                            {value: 'line-through', name: 'Tachado', className: 'fa fa-strikethrough'},
+                            {value: 'bold', name: 'Negrita', className: 'fa fa-bold'}
+                        ],
+                    },
+                    {
+                        // Type of the input,
+                        // options: integer | radio | select | color | slider | file | composite | stack
+                        type: 'integer',
+                        name: 'Tamaño', // Label for the property
+                        property: 'font-size', // CSS property (if buildProps contains it will be extended)
+                        units: ['px'], // Units, available only for 'integer' types
+                        defaults: '25', // Default value
+                        min: 0, // Min value, available only for 'integer' types
+                    }
+                ]
+            }, {
+                name: 'Fondo',
+                open: false,
+                buildProps: ['background-color', 'box-shadow', 'custom-prop'],
+                properties: [
+                    {
+                        id: 'custom-prop',
+                        name: 'Texto personalizado',
+                        property: 'font-size',
+                        type: 'select',
+                        defaults: '32px',
+                        // List of options, available only for 'select' and 'radio'  types
+                        options: [
+                            {value: '12px', name: 'Delgado'},
+                            {value: '18px', name: 'Medio'},
+                            {value: '32px', name: 'Grande'},
+                        ],
+                    },
+                    {
+                        property: 'box-shadow',
+                        name: 'Sombras',
+
+                    },
+                    {
+                        property: 'background-color',
+                        name: 'Colores Sedena',
+                        defaults: 'none',
+                        type: 'select',
+                        list: [
+                            {value: '#621132', name: 'Rojo'},
+                            {value: '#929292', name: 'Gris'},
+                            {value: '#9d2449', name: 'Rosado'},
+                            {value: '#a2805d', name: 'Arena'},
+                            {value: '#285c4d', name: 'Verde Claro'},
+                            {value: '#13322b', name: 'Verde Oscuro'},
+                        ],
+                    },
+                ]
+            }]
+        },
+        traitManager: {
+            appendTo: '.traits-container',
+        },
+    }
+
+    if("<%= id %>" != "0"){
+        launch("<%= id %>")
+    }else{
+        articles.style.display = "none"
+        editor = grapesjs.init(editorConfig);
+        exe(editor , editorConfig)
+    }
+
+    function createItemPanel(item){
+        let itemHtml = document.createElement("div")
+        let btn = document.createElement("a")
+            while(item["coverPage"].search(" ") > -1){
+                item["coverPage"] = item["coverPage"].replace(" ","%20")
+            }
+            btn.style = `background-image:url(${item["coverPage"]})`
+            let leyend = document.createElement("div")
+            leyend.innerHTML = item.title.replace("_"," ")
+            btn.appendChild(leyend)
+        let btnEliminar = document.createElement("span")
+        btnEliminar.style = "position:absolute;border-radius:50%;background:red;color:#fff;width:2rem;height:2rem;font:arial;display:flex;align-items:center;justify-content:center"
+        btnEliminar.innerHTML = "x"
+        itemHtml.appendChild(btnEliminar)
+        itemHtml.appendChild(btn)
+        return itemHtml
+    }
+    
+    function getMagazineContainer(){
+        const container = document.querySelector("#magazines")
+        axios.get("/refam/api/magazine/getAll")
+        .then( res => {
+            for(let magazine of res.data){
+                let btn = createItemPanel(magazine)
+                btn.children[1].href="/refam/editor/"+magazine.id
+                container.appendChild(btn)
+            }
+        })
+        .catch( err =>{
+            console.log("getMagazineContainer > " , err)
+        })
+    }
+    
+    function launch( magazineId ){
+        let magazineRequestUrl = "/refam/api/magazine/getHtmlMagazineByIDEdit?editor&magazineId="+magazineId
+        if("<%= articleId %>" != "0"){
+            magazineRequestUrl = "/refam/api/magazine/getHtmlMagazineByIDEdit/<%= articleId %>?editor&magazineId="+magazineId
+        }
+        console.log(magazineRequestUrl)
+        axios.get(magazineRequestUrl)
+        .then( res => {
+            let data = JSON.parse( localStorage.getItem("WP_CRX_STORAGE_SNAPSHOT_/refam/usuariosRegristro") )
+            if(data != null){
+                data["gjs-components"] = []
+                localStorage.setItem( "WP_CRX_STORAGE_SNAPSHOT_/refam/usuariosRegristro", JSON.stringify(data) )
+            }
+            editor = grapesjs.init(editorConfig);
+            var wrapperChildren = editor.getComponents();
+            wrapperChildren.models = []
+            const container = document.querySelector("#articles>.list")
+            document.querySelector("#articles>.title").innerHTML = "REVISTA: "+res.data.magazine.title
+            for(let article of res.data.articles){
+                if(article["gjs-html"] != undefined){
+                    articleIdSave = article.id
+                    articleIdSaveFile = article.htmlFile
+                    editor.addComponents(article["gjs-html"]);
+                }
+                let btn = createItemPanel(article)
+                btn.children[1].href=`/refam/editor/${magazineId}/${article.id}`
+                container.appendChild(btn)
+                // agregamos boton para editar
+                document.querySelector(".gjs-pn-buttons").appendChild(btnUpdateArticle)
+            }
+            exe(editor , editorConfig)
+        })
+        .catch( err =>{
+            console.log("launch > " , err)
+        })
+    }
+    function exe(editor, editorConfig){
+            getMagazineContainer()
+            editor.setDevice('Mobile');
+
+            const assetManager = editor.AssetManager;
+
+            const apiURl = getApiUrl()
+            const galleryImgUrl = getLoadGalleryImgEndpoint()
+
+            $.ajax({
+                headers: {
+                    'x-access-token': localStorage.getItem('token') ? localStorage.getItem('token') : '',
+                    'Content-Type': 'application/json'
+                },
+                url: apiURl + "gallery/all/",
+                success: function (response) {
+                    let resp = response.galleryImages;
+                    let new_res;
+                    new_res = resp.map(image => {
+                        assetManager.remove(galleryImgUrl + image.name);
+                        return {category: 'image', src: galleryImgUrl + image.name};
+                    });
+                    assetManager.add(new_res);
+                }
+            });
+
+            $.ajax({
+                headers: {
+                    'x-access-token': localStorage.getItem('token') ? localStorage.getItem('token') : '',
+                    'Content-Type': 'application/json'
+                },
+                url: apiURl + "library/all",
+                success: function (response) {
+                    let resp = response.libraryVideos;
+                    let new_res;
+                    let videUrl = apiURl + "library/get?videoName="
+                    new_res = resp.map(video => {
+                        assetManager.remove(videUrl + video.name);
+
+                        return {category: 'video', src: videUrl + video.name};
+                    });
+                    assetManager.add(new_res);
+                }
+            });
+
+            var templateHTML = {
+                "title": "title",
+                "date": "date",
+                "category": "category",
+                "status": 1
+            };
+
+            // Define commands
+            editor.Commands.add('save-template', {
+
+                run(editor, sender) {
+                    if (localStorage.getItem('magazineID') === null) {
+                        alert("Debe crear una revista primero")
+                    } else {
+                        $("#myModal")
+                            .modal()
+                        //$('#myModal1').modal('show');
+
+                        console.log("val", $('#magId').val())
+                        console.log("magazineID", localStorage.getItem('magazineID'))
+
+                        $('#magId')
+                            .val(localStorage.getItem('magazineID'))
+                        console.log("val setted =", $('#magId').val())
+                    }
+                },
+            });
+
+            editor.Commands.add('new-magazine', {
+
+                run(editor, sender) {
+                    $("#magazineModal")
+                        .modal()
+                    /* $.ajax(
+                    apiURl + "magazine/postCreateMagazine",{
+                        'data': JSON.stringify(templateHTML),
+                        'type': 'POST',
+                        'processData': false,
+                        'contentType': 'application/json',
+                        'x-access-token': localStorage.getItem('token') ? localStorage.getItem('token') : '',
+                        success: function(response){
+                        $('.current-magazine').empty();
+                        localStorage.removeItem('magazineID');
+                        localStorage.setItem('gjs-html', '');
+                        localStorage.setItem('gjs-components', '');
+                        editor.DomComponents.clear()
+                        localStorage.setItem('magazineID', response.magazineId);
+                        $('.current-magazine').append("<p>Editando Revista " + response.magazineId + "</p>");
+                        }
+                    });*/
+                },
+            });
+
+
+            editor.Commands.add('show-magazine', {
+                getRowEl(editor) {
+                    return editor.getContainer().closest('.editor-row');
+                },
+                getMagazineEl(row) {
+                    return row.querySelector('.magazine-container')
+                },
+
+                run(editor, sender) {
+                    const lmEl = this.getMagazineEl(this.getRowEl(editor));
+                    lmEl.style.display = '';
+                },
+                stop(editor, sender) {
+                    const lmEl = this.getMagazineEl(this.getRowEl(editor));
+                    lmEl.style.display = 'none';
+                },
+            });
+            editor.Commands.add('show-layers', {
+                getRowEl(editor) {
+                    return editor.getContainer().closest('.editor-row');
+                },
+                getLayersEl(row) {
+                    return row.querySelector('.layers-container')
+                },
+
+                run(editor, sender) {
+                    const lmEl = this.getLayersEl(this.getRowEl(editor));
+                    lmEl.style.display = '';
+                },
+                stop(editor, sender) {
+                    const lmEl = this.getLayersEl(this.getRowEl(editor));
+                    lmEl.style.display = 'none';
+                },
+            });
+            editor.Commands.add('show-styles', {
+                getRowEl(editor) {
+                    return editor.getContainer().closest('.editor-row');
+                },
+                getStyleEl(row) {
+                    return row.querySelector('.styles-container')
+                },
+
+                run(editor, sender) {
+                    const smEl = this.getStyleEl(this.getRowEl(editor));
+                    smEl.style.display = '';
+                },
+                stop(editor, sender) {
+                    const smEl = this.getStyleEl(this.getRowEl(editor));
+                    smEl.style.display = 'none';
+                },
+            });
+            editor.Commands.add('show-traits', {
+                getTraitsEl(editor) {
+                    const row = editor.getContainer().closest('.editor-row');
+                    return row.querySelector('.traits-container');
+                },
+                run(editor, sender) {
+                    this.getTraitsEl(editor).style.display = '';
+                },
+                stop(editor, sender) {
+                    this.getTraitsEl(editor).style.display = 'none';
+                },
+            });
+            editor.Commands.add('show-blocks', {
+                getRowEl(editor) {
+                    return editor.getContainer().closest('.editor-row');
+                },
+                getBlocksEl(row) {
+                    return row.querySelector('.blocks-container')
+                },
+
+                run(editor, sender) {
+                    const lmEl = this.getBlocksEl(this.getRowEl(editor));
+                    lmEl.style.display = '';
+                },
+                stop(editor, sender) {
+                    const lmEl = this.getBlocksEl(this.getRowEl(editor));
+                    lmEl.style.display = 'none';
+                },
+            });
+
+            editor.Panels.addPanel({
+                id: 'panel-top',
+                el: '.panel__top',
+            });
+            editor.Panels.addPanel({
+                id: 'basic-actions',
+                el: '.panel__basic-actions',
+                buttons: [
+                    /* {
+                        id: 'visibility',
+                        active: true, // active by default
+                        className: 'btn-toggle-borders',
+                        label: '<u>B</u>',
+                        command: 'sw-visibility', // Built-in command
+                    }, {
+                        id: 'export',
+                        className: 'btn-open-export',
+                        label: 'Exp',
+                        command: 'export-template',
+                        context: 'export-template', // For grouping context of buttons from the same panel
+                    }, {
+                        id: 'show-json',
+                        className: 'btn-show-json',
+                        label: 'JSON',
+                        context: 'show-json',
+                        command(editor) {
+                            editor.Modal.setTitle('Components JSON')
+                                .setContent(`<textarea style="width:100%; height: 250px;">
+                    ${JSON.stringify(editor.getComponents())}
+                </textarea>`)
+                                .open();
+                        },
+                    }*/
+                ],
+            });
+
+
+            $(document).ready(function () {
+                $(document).on('change', '.btn-file :file', function () {
+                    var input = $(this),
+                        label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+                    input.trigger('fileselect', [label]);
+                });
+
+                $('.btn-file :file').on('fileselect', function (event, label) {
+
+                    var input = $(this).parents('.input-group').find(':text'),
+                        log = label;
+
+                    if (input.length) {
+                        input.val(log);
+                    } else {
+                        if (log) alert(log);
+                    }
+
+                });
+
+                function readURL(input) {
+                    if (input.files && input.files[0]) {
+                        var reader = new FileReader();
+
+                        reader.onload = function (e) {
+                            $('#img-upload').attr('src', e.target.result);
+                        }
+
+                        reader.readAsDataURL(input.files[0]);
+                    }
+                }
+
+
+                $("#imgInp").change(function () {
+                    readURL(this);
+                });
+            });
+
+
+            function resetFormById(id) {
+                $(`#${id}`)[0].reset();
+                resetImageUrl()
+            }
+
+            function resetImageUrl() {
+                $('#img-upload').attr('src', '');
+            }
+
+            $(document).ready(function () {
+                $(document).on('change', '.btn-file :file', function () {
+                    var input = $(this),
+                        label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+                    input.trigger('fileselect', [label]);
+                });
+
+                $('.btn-file :file').on('fileselect', function (event, label) {
+
+                    var input = $(this).parents('.input-group').find(':text'),
+                        log = label;
+                    if (input.length) {
+                        input.val(log);
+                    } else {
+                        if (log) alert(log);
+                    }
+
+                });
+
+                function readURL(input) {
+                    if (input.files && input.files[0]) {
+                        var reader = new FileReader();
+                        reader.onload = function (e) {
+                            $('#img-upload').attr('src', e.target.result);
+                        }
+                        reader.readAsDataURL(input.files[0]);
+                    }
+                }
+
+                $("#imgInp").change(function () {
+                    readURL(this);
+                });
+
+
+                $("#imgArticle").change(function () {
+                    readURL(this);
+                });
+            });
+
+
+            const heading = '<!DOCTYPE html><html lang="en" dir="ltr"><head><link rel="stylesheet" type="text/css" href="/css/style.css"/><\/head> <body>';
+            const footer = '<\/body><\/html>';
+
+            function createArticleReq() {
+                console.log("article")
+
+                let magazineId = localStorage.getItem('magazineID');
+                let htmlContent = heading + localStorage.getItem('gjs-html') + footer;
+
+                console.log("val setted article=", magazineId)
+
+                let formData = new FormData()
+                var d = $('#imgArticle')[0].files[0]
+
+                let category = $('#articleCat').val()
+
+                console.log("d", d)
+                formData.append('fileid', d);
+                formData.append('category', category);
+                formData.append('htmlContent', htmlContent);
+                formData.append('magazineId', magazineId);
+
+
+                $.ajax(
+                    apiURl + "magazine/postAddHtmlArticle", {
+                        enctype: 'multipart/form-data',
+                        headers: {'x-access-token': localStorage.getItem('token') ? localStorage.getItem('token') : ''},
+                        'contentType': false,
+                        'data': formData,
+                        'type': 'POST',
+                        'processData': false,
+                        success: function (response) {
+                            console.log(response);
+                            localStorage.setItem('gjs-html', response);
+                            resetFormById("newArticleForm")
+
+                        },
+                        error: function (data) {
+                            alert("Ha ocurrido un error: " + data.message)
+                        }
+                    });
+
+            }
+
+
+            function createMagReq() {
+                console.log("article")
+
+                let formData = new FormData()
+                var d = $('#imgInp')[0].files[0]
+
+                console.log("d", d)
+
+                let title = $('#magazineTitle').val()
+                let date = $('#magazineDate').val()
+                let category = $('#magazineCat').val()
+                let status = 1
+
+                formData.append('fileid', d);
+                formData.append('title', title);
+                formData.append('date', date);
+                formData.append('category', category);
+                formData.append('status', status);
+
+                $.ajax(
+                    apiURl + "magazine/postCreateMagazine", {
+                        enctype: 'multipart/form-data',
+                        headers: {'x-access-token': localStorage.getItem('token') ? localStorage.getItem('token') : ''},
+                        'contentType': false,
+                        'data': formData,
+                        'type': 'POST',
+                        'processData': false,
+                        success: function (response) {
+                            localStorage.removeItem('magazineID');
+                            localStorage.setItem('gjs-html', '');
+                            localStorage.setItem('gjs-components', '');
+                            editor.DomComponents.clear()
+                            localStorage.setItem('magazineID', response.magazineId);
+                            $('.current-magazine')
+                                .empty()
+                                .append("<p>Editando Revista " + response.magazineId + "</p>");
+                            resetFormById("newMagazineForm")
+
+                        },
+                        error: function (data) {
+                            alert("Ha ocurrido un error: " + data.message)
+                        }
+                    });
+
+            }
+    }
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80">
+    <defs>
+        <style>
+            .cls-1{fill:#1a1a1a}
+        </style>
+    </defs>
+    <g id="icono_menú-07" data-name="icono menú-07" transform="translate(-6 -5.48)">
+        <path id="Trazado_139" d="M86 62v23.48H6V62h4.73v-4.7H6V33.89h4.76v-4.67H6V5.48h80v23.75h-4.81v4.68H86v23.44h-4.81V62zM10.7 24.48h70.55V10.21H10.7zm70.56 14.17H10.73v14h70.53zm0 28.13H10.73v14h70.52zm-4.84-37.5H15.55v4.59h60.86zm0 28.12H15.57V62h60.86z" class="cls-1" data-name="Trazado 139"/>
+        <path id="Trazado_140" d="M76.39 19.82v-4.59H53.06v4.59zm-56.24 0v-4.6h-4.6v4.59zm9.37 0v-4.59h-4.59v4.59zm9.4-4.62h-4.61v4.6h4.61z" class="cls-1" data-name="Trazado 140"/>
+        <path id="Trazado_141" d="M53.07 43.32v4.59h23.34v-4.59zm-37.51 0v4.59h4.58v-4.58zm14 0h-4.63v4.58h4.61zm4.76 4.57h4.59v-4.56H34.3z" class="cls-1" data-name="Trazado 141"/>
+        <path id="Trazado_142" d="M76.41 71.47H53.05v4.59h23.36zm-56.25 4.6v-4.61h-4.6v4.61zm4.78-4.62V76h4.59v-4.55zm9.38 0V76h4.59v-4.55z" class="cls-1" data-name="Trazado 142"/>
+        <path id="Trazado_143" d="M76.39 19.82H53.06v-4.59h23.33z" class="cls-1" data-name="Trazado 143"/>
+        <path id="Trazado_144" d="M20.15 19.81h-4.6v-4.59h4.6z" class="cls-1" data-name="Trazado 144"/>
+        <path id="Trazado_145" d="M29.52 19.82h-4.59v-4.59h4.59z" class="cls-1" data-name="Trazado 145"/>
+        <path id="Trazado_146" d="M38.92 15.2v4.6h-4.61v-4.6z" class="cls-1" data-name="Trazado 146"/>
+        <path id="Trazado_147" d="M53.07 43.32h23.34v4.59H53.07z" class="cls-1" data-name="Trazado 147"/>
+        <path id="Trazado_148" d="M15.56 43.33h4.58v4.59h-4.58z" class="cls-1" data-name="Trazado 148"/>
+        <path id="Trazado_149" d="M29.54 43.35v4.58h-4.61v-4.58z" class="cls-1" data-name="Trazado 149"/>
+        <path id="Trazado_150" d="M34.3 47.92v-4.59h4.59v4.59z" class="cls-1" data-name="Trazado 150"/>
+        <path id="Trazado_151" d="M76.41 71.47v4.59H53.05v-4.59z" class="cls-1" data-name="Trazado 151"/>
+        <path id="Trazado_152" d="M20.16 76.07h-4.6v-4.61h4.6z" class="cls-1" data-name="Trazado 152"/>
+        <path id="Trazado_153" d="M24.94 71.45h4.59V76h-4.59z" class="cls-1" data-name="Trazado 153"/>
+        <path id="Trazado_154" d="M34.32 71.45h4.59V76h-4.59z" class="cls-1" data-name="Trazado 154"/>
+    </g>
+</svg>

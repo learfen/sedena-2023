@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('./partials/header'); %>
+</head>
+<body>
+<%- include('./partials/nav_bar'); %>
+
+<div class="container-fluid datos">
+    <div class="row justify-content-end heading-page heading-v1">
+        <div class="col-4">
+            <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a class="text-light" href="/refam/menu">Inicio</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Galería</li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="col-12">
+                <div class="heading-title">
+                    <h2>Galería</h2>
+                </div>
+            </div>
+        </div>
+        <div class="row heading-page justify-content-center pt-3 pb-1 bg-gray">
+            <div class="col-md-3 text-center">
+                <a hrf="#" class="btn btn-danger text-white">Cargar Nuevo</a>
+            </div>
+            <div class="col-4">
+                <form class="form-inline">
+                    <div class="form-group mb-2">
+                        <select class="custom-select">
+                            <option>Acciones en lote</option>
+                        </select>
+                    </div>
+                    <div class="form-group mb-2">
+                        <button type="submit" class="btn btn-primary ml-2">Aplicar</button>
+                    </div>
+                </form>
+            </div>
+            <div class="col-4">
+                <form class="form-inline">
+                    <div class="form-group mb-2">
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="Consulta">
+                        </div>
+                    </div>
+                    <div class="form-group mb-2">
+                        <button type="submit" class="btn btn-primary ml-2">Buscar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="row heading-page align-items-end">
+            <div class="col-md-7">
+                <!-- Conenedor para imagenes-->
+                <ul id="imageListId" class="gallery-grid">
+
+                    <% i=1; galleryImages.forEach((image, key) => { %>
+                        <li class="gallery-item" style="display: inline-block">
+                            <span class="delete" deleteapi="<%= image.id %>">x</span>
+                            <img id="gimg-<%= i %>" width="150" height="150" src="/refam/api/gallery/get?imageName=<%= image.name %>">
+
+                        </li>
+                    <% i++ }) %>
+                </ul>
+            </div>
+            <div class="col-md-5 pt-5">
+                <!-- contenedor para acciones-->
+                <div id="square-preview" class="square-preview"></div>
+                <form class="custom-gallery-form" action="/refam/api/gallery/uploadImage" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <input class="btn btn-secondary form-control" type="submit" value="Cargar Imágenes">
+                    </div>
+                    <div class="form-group">
+                        <label for="gallery-photo-add" class="btn btn-primary form-control">
+                            <input id="gallery-photo-add" multiple class="" type="file" name="image" style="display: none;">
+                            Seleccionar
+                        </label>
+                    </div>
+                </form>
+            </div>
+        </div>
+</div>
+<script src="/refam/javascript/axios.js"></script>
+<script>
+
+    $('#gallery-photo-add').change(function(){
+        $('#square-preview').empty();
+        for(let i=0; i<Object.keys(this.files).length;i++){
+            const file = this.files[i]
+            if (file){
+                $('#square-preview').append(`<img id='img-prev${i}' style='width:100px!important; height: 100px; margin-left:5px; margin-bottom:5px;' src='' />`)
+                const reader = new FileReader()
+                reader.onload = function(){
+                    $('#img-prev'+i).attr('src',this.result);
+                }
+                reader.readAsDataURL(file)
+            }
+        }
+    })
+    
+    $('img').on("click", function (e) {
+        $('#square-preview').empty();
+        var current_img = this.src;
+        var img_container = $('#square-preview');
+        $($.parseHTML('<img>')).attr('src', this.src).appendTo($('#square-preview'));
+    });
+
+   
+//});
+
+$('img[id^=gimg-]').each(function(){
+	let idAux = $(this).attr("id").replace('gimg-','')
+	$('#gimg-'+idAux).click(function(){
+		let src = $('#gimg-'+idAux).attr('src')
+		$('.gallery').empty().append('<img src="'+src+'">')
+		$(".gallery img").css("width", "100%")
+		$(".gallery img").css("height", "100%")
+	})
+    })
+
+
+    const btnDelete = document.querySelectorAll("span[deleteapi]")
+    for(let btn of btnDelete){
+        btn.addEventListener('click' , function(e){
+            axios.delete("/refam/api/gallery/image/"+e.target.getAttribute("deleteapi"),
+                { headers: { 'Authorization': localStorage.getItem("token") } }
+            ).then( res => {
+                if(res.data.error != undefined){
+                    alertWarning( res.data.error )
+                }else{
+                    alertSuccess( "Borrado" )
+                    e.target.parentNode.remove()
+                }
+            })
+            .catch( error => {
+                alertWarning( error )
+            })
+            
+        })
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Manager</title>
+</head>
+<body>
+	<button onclick="controlVisite()">Boton para cambiar de color las filas visite>0</button>
+	<div id="app">
+		<select v-model="openName"  @change="open">
+			<option v-for="name of tables" :value="name">{{name}}</option>
+		</select>
+		<div v-if="modal" style="display:flex;flex-direction: column;padding: 1rem;background:#eee;position:fixed;bottom:1rem;left:1rem">
+			<div style="text-align: right;"><b @click="modal=false" style="cursor: pointer;color:red;padding:.5rem;margin-bottom:1rem"> x </b></div>
+			<span>ID {{updateId}}</span>
+			<label for="">
+				<input type="text" v-model="updateKey">
+			</label>
+			<label for="">
+				<textarea type="text" v-model="updateValue"></textarea>
+			</label>
+			<button @click="updateCell">Actualizar</button>
+		</div>
+		<div v-if="alertShow" style="position:fixed;bottom:1rem;left:1rem;padding:2rem;color:#fff" v-bind:style="'background-color:' + alertColor">
+			{{ alertText }}
+		</div>
+		<div v-if="openName != ''">
+			Insertar
+			<div v-for="fieldsTable of tableDefine[openName]">
+				<label for=""> {{ fieldsTable }} <input :name="fieldsTable" type="text"></label>
+			</div>
+			<button @click="insertRow"> Insert</button>
+		</div>
+		{{ openName }}
+		<table border="1" style="margin-bottom:13rem">
+			<tr>
+				<th v-for="name of header">{{ name }}</th>
+			</tr>
+			<tr v-for="(row, indexRow) of data" @click="updateId=row.id">
+				<td v-for="(cell, index) of Object.values(row)" @click="targetRow=indexRow;modal=true;updateKey=Object.keys(row)[index];updateValue=cell">
+					{{ cell }}
+				</td>
+			</tr>
+		</table>
+	</div>	
+    <pre id="jsonView"></pre> 
+</body>
+<style>
+	body{
+		font-family: Arial, Helvetica, sans-serif;
+	}
+	table{
+		font-size: 11px;
+		background-color: #304999;
+	}
+	tbody tr:nth-child(odd) {
+		background-color: #eee1eb;
+	}
+
+	tbody tr:nth-child(even) {
+		background-color: #acacac;
+	}
+</style>
+<script src="/refam/javascript/axios.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.12/vue.min.js" integrity="sha512-BKbSR+cfyxLdMAsE0naLReFSLg8/pjbgfxHh/k/kUC82Hy7r6HtR5hLhobaln2gcTvzkyyehrdREdjpsQwy2Jw==" crossorigin="anonymous"></script>
+<script>
+	function controlVisite(){
+		let max = document.querySelector("table").children[0].children.length
+		let tableBody = document.querySelector("table").children[0]
+		for(let i = 1; i< max; i++){
+			if( parseInt(tableBody.children[i].children[9].innerText) > 0)
+				tableBody.children[i].style = "background:green;color:#fff"
+		}
+	}
+
+	function magazineList(){
+		magazine = []
+		let max = document.querySelector("table").children[0].children.length
+		let tableBody = document.querySelector("table").children[0]
+		for(let i = 1; i< max; i++){ 
+
+				magazine.push( {
+					id:tableBody.children[i].children[0].innerText ,
+					title:tableBody.children[i].children[1].innerText , 
+					category:tableBody.children[i].children[6].innerText || 1 ,
+					dateOrder:tableBody.children[i].children[2].innerText , 
+					cover:tableBody.children[i].children[5].innerText , 
+					source:"html"
+				} )
+		}
+		let add = {}
+		for(let i = 1 ; i < magazine[magazine.length - 1 ].id ; i++){
+				add[String(i)] = ( {id:i, title:"auto creada" , category:"auto creada" , dateOrder:"2000-01-01" , cover:"" , source:"html"} )
+		}
+		for(let item of magazine){
+				let data = {...item}
+				delete data.id
+				add[String(item.id)] = data
+		}
+		document.querySelector("#jsonView").innerHTML = JSON.stringify( Object.values(add) , null , 4)
+	}
+
+
+	function articlesList(){
+		articles = []
+		let max = document.querySelector("table").children[0].children.length
+		let tableBody = document.querySelector("table").children[0]
+		for(let i = 1; i< max; i++){ 
+
+		        articles.push( {
+                    id:tableBody.children[i].children[0].innerText ,
+			        title:tableBody.children[i].children[1].innerText , 
+			        file:tableBody.children[i].children[4].innerText , 
+			        section:tableBody.children[i].children[6].innerText || 1 ,
+			        cover:tableBody.children[i].children[5].innerText , 
+			        page:tableBody.children[i].children[7].innerText || 0, 
+			        magazineId:tableBody.children[i].children[8].innerText ,
+			        source:"html"
+		        } )
+		}
+
+		let add = {}
+		for(let i = 1 ; i < articles[articles.length - 1 ].id ; i++){
+				add[String(i)] = ( {id:i, title:"auto creada",section:"auto creada",file:"", cover:"" , source:"html" , page:0 , magazineId:1 , source:"html"} )
+		}
+		for(let item of articles){
+				let data = {...item}
+				delete data.id
+				add[String(item.id)] = data
+		}
+		document.querySelector("#jsonView").innerHTML = JSON.stringify( Object.values(add) , null , 4)
+	}
+
+	function imageList(){
+		media = []
+		let max = document.querySelector("table").children[0].children.length
+		let tableBody = document.querySelector("table").children[0]
+		for(let i = 1; i< max; i++){ 
+
+		media.push( {
+			id:tableBody.children[i].children[0].innerText ,
+			description:tableBody.children[i].children[1].innerText , 
+			size:tableBody.children[i].children[2].innerText,
+			status: !!tableBody.children[i].children[4].innerText , 
+			magazine: +tableBody.children[i].children[7].innerText > 0 ? +tableBody.children[i].children[7].innerText : 1, 
+			album:"No definido" ,
+			updatedBy:1 ,
+			ext: tableBody.children[i].children[1].innerText.split(".").length > 1  ? tableBody.children[i].children[1].innerText.split(".")[1] : ""
+				} )
+		}
+		let add = {}
+		for(let i = 1 ; i < media[media.length - 1 ].id ; i++){
+				add[String(i)] = ( {description:"" , album:"Indefinido", dateOrder:"2000-01-01" , size:0 , ext:"png" , magazine:1, updatedBy:1} )
+		}
+		for(let item of media){
+				let data = {...item}
+				delete data.id
+				add[String(item.id)] = data
+		}
+		document.querySelector("#jsonView").innerHTML = JSON.stringify( Object.values(add) , null , 4)
+	}
+	new Vue({
+		el:"#app",
+		data(){ return {
+			tables:[],
+			header:[],
+			data:[],
+			openName:"",
+			updateKey:"",
+			updateValue:"",
+			updateId:0,
+			modal:false,
+			targetRow:0,
+			alertType:'warning',
+			alertShow:false,
+			alertText:'',
+			tableDefine:{}
+		}},
+		computed:{
+			alertColor(){
+				let colors = {success:'green' , error:'red' , warning:'orange'}
+				return colors[this.alertType]
+			}
+		},
+		mounted(){
+			axios.get("/refam/api/tables/").then( res => {
+				this.tableDefine = res.data
+				this.tables = [ ...Object.keys( res.data ) ]
+			})
+		},
+		methods:{
+			magazine:magazineList,
+			article_magazine:articlesList,
+			gallery_image:imageList,
+			open(){
+				this.header = []
+				this.data = []
+				this.alertShow = true
+				this.alertText = 'Cargando'
+				this.alertType = 'warning'
+				axios.get("/refam/api/tables/"+this.openName).then( res => {
+					console.log(res.data)
+					this.header = [ ...res.data.header ]
+					this.data = [ ...res.data.data ]
+				
+					this.alertShow = false
+
+					setTimeout( ()=> {
+						this[this.openName]()
+					}, 1000)
+					
+				}).catch( e => console.log(e))
+			},
+			insertRow(){
+				let send = {}
+				for(let key of this.header){
+					if(document.querySelector(`input[name=${key}]`))
+						send[key] = document.querySelector(`input[name=${key}]`).value
+				}
+				axios.post(`/refam/api/tables/new/${this.openName}` , send)
+				.then( res => {
+					this.open()
+				})
+			},
+			updateCell(){
+				let route = `/refam/api/tables/${this.openName}/${this.updateId}`
+				let value = {}
+				value[this.updateKey] = this.updateValue
+				axios.post( route , { value:JSON.stringify(value) })
+				.then( res => {
+					if(res.error){
+					
+						this.alertShow = true
+						this.alertText = res.error
+						this.alertType = 'error'
+
+					}else{
+						if(this.updateKey != ""){
+							let row = this.data[this.targetRow]
+							row[this.updateKey] = this.updateValue
+							//this.data.splice(this.targetRow , 1 , row)
+							this.targetRow = 0
+							this.updateValue = ""
+							this.updateKey = ""
+							this.modal = false
+
+							this.alertShow = true
+							this.alertText = 'Actualizado'
+							this.alertType = 'success'
+
+							let x = setTimeout( ()=>{
+								this.alertShow = false
+								clearTimeout( x )
+							} , 2000)
+						}
+					}
+				})
+				.catch( res => {
+					console.log(res)
+					
+					this.alertShow = true
+					this.alertText = res.message
+					this.alertType = 'error'
+				})
+			}
+		}
+	})
+</script>
+</html>

@@ -1,0 +1,1293 @@
+<!doctype html>
+<html lang="en">
+	<head>
+	<meta charset="utf-8">
+	<title>REFAM-EDITOR</title>
+
+	<link rel="stylesheet" href="/refam/css/all.min.css">
+	<link rel="stylesheet" href="/refam/css/material.css">
+	<link rel="stylesheet" href="/refam/css/tooltip.css">
+	<link rel="stylesheet" href="/refam/css/toastr.min.css">
+	<link rel="stylesheet" href="/refam/dist/grapesjs-preset-newsletter.css">
+	<link rel="stylesheet" href="/refam/css/editor.css">
+	</head>
+	<body>
+		<div class="headerRefam">
+			<img src="/refam/images/logo.png" class="JWm6hl">
+			<div class="headerListNav">
+				<a href="/refam/revistas"> Revistas </a>
+				<a href="/refam/editor" id="navbtneditor"> Editor </a>
+				<a href="/refam/beneficios"> Beneficios </a>
+				<a href="/refam/galeria"> Galeria </a>
+				<a href="/refam/notificaciones"> Notificaciones </a>
+				<a href="/refam/usuarios"> Usuarios </a>
+				<a href="/refam/biblioteca"> Biblioteca </a>
+				<a href="/refam/login"> <img src="/refam/images/salir.png" alt="logout icon"></a>
+			</div>
+		</div>
+		<div class="heading-title">
+			<div  class="breadcrumb">
+				<nav>
+					<li class="breadcrumb-item"><a class="text-light" href="/refam/menu">Inicio</a></li>
+					<li class="breadcrumb-item active"> > <a href="#">Editor</a></li>
+				</nav>
+			</div>
+
+			<div class="centered">
+				<h2>Editor</h2>
+			</div>
+		</div>
+		<div id="menuIntro" style="width: 100vw;height: 100vh;margin-top: 0;background: #333;position: absolute;z-index: 10;display:flex;justify-content:center;align-items:center">
+			<img style="margin:1rem;width:180px;height:180px" onclick="document.querySelector('.magazineBtn').click()"  src="/refam/images/icons/revista-nueva.png" alt="">
+			<img id="btnRevistas" style="margin:1rem;width:180px;height:180px"  src="/refam/images/icons/revistas.png" alt="">
+		</div>
+		<!--
+			<button onclick="location.href='/refam/menu'" style="padding:.5rem;background-color:#444;color:#fff;font-weight: bold;outline: none;position:absolute;z-index:10">Salir del editor</button>
+		-->
+		<div id="alertBox">
+			<span class="alertBox-close"> x </span>
+			<span id="alertBoxText"></span>
+		</div>
+
+		<div class="panel__right">
+	        <div class="blocks-container"></div>
+			<div class="layers-container"></div>
+		</div>
+
+	<div id="gjs" style="height:0px; overflow:hidden">
+
+		
+</div>
+		<form id="test-form" class="test-form" action="https://grapes.16mb.com/s" method="POST" style="display:none">
+			<div class="putsmail-c">
+				<a href="https://putsmail.com/" target="_blank">
+					<!--<img src="./img/putsmail.png" style="opacity:0.85;" />-->
+				</a>
+				<div class="gjs-sm-property" style="font-size: 10px">
+					Test delivering offered by <a class="nl-link" href="https://litmus.com/" target="_blank">Litmus</a> with <a class="nl-link" href="https://putsmail.com/" target="_blank">Putsmail</a>
+					<span class="form-status" style="opacity: 0">
+					<i class="fa fa-refresh anim-spin" aria-hidden="true"></i>
+					</span>
+				</div>
+			</div>
+			<div class="gjs-sm-property">
+			<div class="gjs-field">
+				<span id="gjs-sm-input-holder">
+				<input type="email" name="email" placeholder="Email" required>
+				</span>
+			</div>
+			</div>
+
+			<div class="gjs-sm-property">
+			<div class="gjs-field">
+				<span id="gjs-sm-input-holder">
+				<input type="text" name="subject" placeholder="Subject" required>
+				</span>
+			</div>
+			</div>
+			<input type="hidden" name="body">
+		</form>
+	<div id="magazines-container" class="gallery" style="display:none">
+		<div id="lastMagazineCover" style="display: flex;background-color: #eee;justify-content: center;">
+			<div style="display: flex;justify-content: flex-end;align-items: center;min-height: 180px;width:50%">
+				<h3 style="color:#444;text-align: right;">ÚLTIMA REVISTA PUBLICADA</h3>
+			</div>
+		</div>
+		<div class="list" id="magazines"></div>
+	</div>
+	
+	<div id="videos-gallery" class="gallery" style="display:none">
+		<h3>VIDEO</h3>
+		<div class="form-group">
+			<div class="input-group">
+				<span class="input-group-btn">
+					<span class="btn btn-default btn-file">
+						Seleccionar para subir… <input name="videoInp" type="file" id="videoInp">
+					</span>
+				</span>
+			</div>
+		</div>
+		<div class="list" id="videos"></div>
+	</div>
+
+	<div id="magazine-container" class="gallery" style="display:none;padding-top:2rem">
+		<div>
+			<button id="magazineBackBtn">Volver a REVISTAS</button>
+			<span style="display: inline-block;width: 2rem;"></span>
+			<button id="magazineNewArticle">Nuevo articulo</button>
+			<button onclick="magazinesCoverUpdate()">Actualizar cover</button>
+			<span style="display: inline-block;width: 2rem;"></span>
+			<button id="magazineStateEdited">En edición</button>
+			<button id="magazineStatePosted">Publicar</button>
+		</div>
+		<form class="form-group" id="magazineUpdate">
+			<label for="magazineUpdateTitle">
+				Titulo de revista: <input type="text" class="form-control" id="magazineUpdateTitle" placeholder="Título">
+			</label>
+			<label for="magazineUpdateDate">
+				Fecha de revista: <input type="date" class="form-control" id="magazineUpdateDate" placeholder="Fecha">
+			</label>
+		</form>
+		<div style="color:#FFF;">Los articulos con 0, son aquellos que aun no reciben una numeración, y apareceran al inicio</div>
+		<div class="list" id="articles" style="padding-top:2rem"></div>
+	</div>
+
+
+	<!-- MODAL CONTENT ARTOCLE NEW -->
+	<div id="article-new" style="display:none">
+		<form id="newArticleForm">
+			<div class="form-group">
+				<label>Imagen de Artículo</label>
+				<div class="input-group">
+					<span class="input-group-btn">
+						<span class="btn btn-default btn-file">
+							Seleccionar… <input name="imgArticle" type="file" id="imgArticle">
+						</span>
+					</span>
+					<input style="display: none;" type="text" class="form-control" readonly>
+				</div>
+				<img style="position: absolute;margin: 0;margin-left: calc(100% - 350px);" height="220px" width="auto" id='img-upload'/>
+			</div>
+			
+			<div class="form-group">
+				<label for="articleTitle">Titulo
+					<input type="text" class="form-control" id="articleTitle" placeholder="Titulo">
+				</label>
+				<label for="articleCat">Categoría
+					<input type="text" class="form-control" id="articleCat" placeholder="Categoría">
+				</label>
+				<!-- <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>-->
+			</div>
+
+			<div>
+				<button id="article-new-btn-post">CREAR</button>
+				<span class="current-article"></span>
+			</div>
+		</form>
+	</div>
+	<div id="magazine-new" style="display:none">
+		<h4 class="modal-title">Datos de la Revista</h4>
+		<form id="newMagazineForm">
+
+			<div class="form-group">
+				<label for="magazineTitle">Título</label>
+				<input type="text" class="form-control" id="magazineTitle" placeholder="Título">
+				<!-- <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>-->
+			</div>
+
+			<div class="form-group">
+				<label for="magazineTitle">Categoría</label>
+				<input type="text" class="form-control" id="magazineCat" placeholder="Categoría">
+			</div>
+
+
+			<div class="form-group"> <!-- Date input -->
+				<label class="control-label" for="magazineDate">Ingresar mes que corresponde a la revista</label>
+				<input class="form-control" id="magazineDate" name="magazineDate" placeholder="DD/MM/YYY"
+					type="date"/>
+			</div>
+
+			<div class="form-group">
+				<label>Imagen de Portada</label>
+				<div class="input-group">
+				<span class="input-group-btn">
+					<span class="btn btn-default btn-file">
+						Seleccionar… <input name="imgInp" type="file" id="imgInp">
+					</span>
+				</span>
+					<input style="opacity: 0;" type="text" class="form-control" readonly>
+				</div>
+				<img style="position: absolute;margin: 0;margin-left: 70%;margin-top: -200px;" height="320px" width="auto" id='img-upload'/>
+			</div>
+			<div>
+				<button id="magazine-new-btn-post">CREAR</button>
+				<span class="current-magazine"></span>
+			</div>
+		</form>
+	</div>
+	<div id="cleaner" style="display:none;position:fixed;bottom:0;z-index:1000;width:100%;width:400px"><textarea style="margin-left:200px;width:400px;display:inline-block;height:600px" spellcheck=""></textarea></div>
+	<script id="evaluationToken">
+		if(window.location.href.replace(window.origin, "") != "/refam/login"){
+			if(localStorage.getItem("token") == undefined || localStorage.getItem("token") == "" ||  localStorage.getItem("token") == 'undefined' ){
+				location.href = "/refam/login"
+			}else{
+				if(location.href.split('token=undefined').length > 1){
+					location.href = location.href.replace('token=undefined','token='+localStorage.getItem('toekn'))
+				}else{
+					document.querySelector('#evaluationToken').remove()
+					document.querySelector("#navbtneditor").href += "?token="+localStorage.getItem("token")
+				}
+			}
+		}
+	</script>
+	<script src="/refam/javascript/jquery-3.2.1.min.js"></script>
+
+	<script src="/refam/javascript/grapes.js"></script>
+	<script src="/refam/dist/grapesjs-preset-newsletter.min.js"></script>
+
+	<script src="/refam/javascript/ajaxable.min.js"></script>
+		<script src="/refam/javascript/toastr.min.js"></script>
+	<script src="/refam/javascript/axios.js"></script>
+	<script src="/refam/javascript/editor_actions.js"></script>
+	<script src="/refam/javascript/editor_blockManager.js"></script>
+	<script src="/refam/javascript/editor_utils.js"></script>
+	<script src="/refam/javascript/editor_addButtons.js"></script>
+	<script src="/refam/javascript/editor_events.js"></script>
+	<script id="evaluationToken">
+		function token(){
+			return localStorage.getItem('token')
+		}/*
+		if(window.location.href.replace(window.origin, "") != "/refam/login"){
+			if(token() == undefined || token() == ""){
+				//location.href = "/refam/login"
+			}else{
+                if(location.href.search('token=') == -1)
+					//location.href = location.href + (location.href.search('?') == -1 ? '?token=': '&token=') + token()
+			}
+		}*/
+		document.querySelector('#evaluationToken').remove()
+		document.querySelector("#navbtneditor").href += "?token="+token()
+
+
+		function validCover( files ) {
+			if(files.length == 0){
+				alertWarning("Ha ocurrido un error: Debes seleccionar una imagen" )
+				return false
+			}
+			var fileSize = files[0].size;
+			var siezekiloByte = parseInt(fileSize / 1024);
+			if (siezekiloByte >  300) {
+				alertWarning("Ha ocurrido un error: Maximo para los cover 300kb" )
+				return false;
+			}
+			return true
+		}
+	</script>
+	<script type="text/javascript">
+		if(localStorage.getItem("role") != undefined){
+			let roles = ["", "Escritor", "Editor", "Administrador"]
+			let role = document.createElement("span")
+			role.innerHTML = location.href.search('article') > -1 ? '<textarea style="margin-left:10px;margin-top:-350px;position:absolute;height:250px" placeholder="sanitizar"></textarea>' : '' + '<div>Activo como:'+roles[localStorage.getItem("role")]+'</div>'
+			role.style="position:fixed;bottom:0;left:0;background:#333;color:#aaa;padding:3px;font-size:10px;z-index:10000"
+			document.body.appendChild(role)
+		}
+
+		const alertBox = document.querySelector("#alertBox")
+		const alertBoxText = document.querySelector("#alertBoxText")
+
+		const modalClassLittle = 'gjs-mdl-dialog-sm';
+		const modalClassLong = 'gjs-mdl-dialog-lg';
+		const modalClassBottom = 'dialog-bottom'
+		var editor
+		var images = []
+		let uploadProccessActive = false
+
+		function validFileName( text ) {
+			// Variable que usaremos para determinar si el input es valido
+			let isValid = false;
+
+			input.willValidate = false;
+
+			// El tamaño maximo para nuestro input
+			const maximo = 35;
+
+			// El pattern que vamos a comprobar
+			const pattern = new RegExp('^[A-Z]+$', 'i');
+
+			// Primera validacion, si input esta vacio entonces no es valido
+			if(!text) {
+				isValid = false;
+			} else {
+				// Segunda validacion, si input es mayor que 35
+				if(text.length > maximo)  isValid = false;
+				else {
+					// Tercera validacion, si input contiene caracteres diferentes a los permitidos
+					if(!pattern.test(text)){ 
+					// Si queremos agregar letras acentuadas y/o letra ñ debemos usar
+					// codigos de Unicode (ejemplo: Ñ: \u00D1  ñ: \u00F1)
+						isValid = false;
+					} else {
+						// Si pasamos todas la validaciones anteriores, entonces el input es valido
+						isValid = true;
+					}
+				}
+			}
+
+			// devolvemos el valor de isValid
+			return isValid;
+    	}
+
+    // Por último, nuestra función que verifica si el campo es válido antes de realizar cualquier otra acción.
+    function validFile( name ) {
+		if (! validFileName( name ) ) {
+			alertWarning('Error de archivo: '+name);
+			return false
+		} 
+		return true
+    }
+	
+		function editorGet(v) { 
+			if( v != undefined){
+				editor = v
+			}
+			return editor 
+		}
+		var proccessActive = ""
+		function proccessActived(v){ 
+			if(v != undefined){ proccessActive = v }
+			return proccessActive
+		}
+
+		var magazineStoreObject = {magazine:{},articles:[]}
+		function magazineStore(v){
+			if(v == undefined) return magazineStoreObject
+			magazineStoreObject = v
+			return magazineStoreObject
+		}
+
+		var magazinesStoreObject = null
+		function magazinesStore(v){
+			if(v == undefined) return magazinesStoreObject
+			magazinesStoreObject = v
+			return magazinesStoreObject
+		}
+		function magazinesCoverUpdate(){
+			let input = document.createElement('input')
+			input.type = 'file'
+			input.onchange = e => {
+				var files = e.dataTransfer ? e.dataTransfer.files : e.target.files;
+				// ...send somewhere
+				var formData = new FormData();
+				formData.append('fileid', files[0])
+				uploadProccessActive = true
+				axios.post("/refam/upload/editor/?coverMagazine="+ magazineStore().magazine.id , formData , {
+					headers: {
+						'Content-Type': 'multipart/form-data',
+						'Authorization': localStorage.getItem("token") ,
+						'x-access-token': localStorage.getItem('token') ? localStorage.getItem('token') : ''
+					}
+				})
+				.then( res => {
+					uploadProccessActive = false
+					editor.AssetManager.add( res.data.result )
+					alertSuccess("Guardado")
+					e.target.remove()
+				}).catch(function (error) {
+					uploadProccessActive = false
+					alertWarning("INTENTE EN OTRO MOMENTO O COMUNIQUESE CON EL DESARROLLADOR\n" + error)
+					e.target.remove()
+				})
+			}
+			document.body.appendChild(input)
+			input.click()
+		}
+
+		var videosStore = []
+		function videosStored(){ return videosStore }
+		//if(urlParamsGet().article != undefined) document.querySelector('#cleaner').style.display = 'inline-block'
+		function addToken( url ){
+			if(url.split('?').length > 1) url += '&token='+localStorage.getItem('token')
+			else url += '?token='+localStorage.getItem('token')
+			return url
+		}
+
+		if(urlParamsGet().token == undefined) location.href = addToken( location.href )
+
+		axios.get(addToken( '/refam/api/medias?magazine='+urlParamsGet().magazine )).then( res => {
+			
+			console.log(res.data.result)
+			videosStore = res.data.result.filter( item => item.type == 'video' )
+		})
+		axios.get(addToken( '/refam/api/magazine/getLastMagazine' ))
+		.then( result =>{
+			if( result.data ){
+				let img = document.createElement('img')
+				img.style = "height:200px;width:auto;"
+				img.src = result.data.coverPage.search('refam') < 0 ? location.origin+'/refam/api/magazine/getCoverOfMagazine?imageName=' + result.data.coverPage : result.data.coverPage
+				document.querySelector('#lastMagazineCover').appendChild(img)
+			}
+		})
+		
+		console.log('API ', location.origin.replace(':'+location.port,'')+`:3002/refam/`)
+		function apiClone( action , data ){
+			localStorage.setItem('tokenApiClone' , 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjExOTE2MzQ4LCJleHAiOjE2MTIwMDI3NDh9.wASjJcJt0OPJmkDFQDIJqZWMuuM_ICDmyL5zDKce4_M')
+			const apiCloneAxios = ( url , data , next , nextError ) => {
+				axios.post(location.origin.replace(':'+location.port,'')+`:3002/refam/${url}?token=${ localStorage.getItem('tokenApiClone') }`, 
+					data, 
+					{
+						headers: {
+							'Content-Type': 'application/json',
+							'Authorization': localStorage.getItem("tokenApiClone")
+						}
+					})
+					.then( next )
+					.catch( nextError )
+			}
+		
+			if(action == 'magazineSave'){
+				apiCloneAxios('revista' , data.magazine , 
+					res => {
+						console.log("Revista Clone Guardada")
+						let formData = new FormData();
+						formData.append('album' , 'cover')
+						formData.append('fileSize' , data.file.size)
+						// el archivo es el ultimo dato que se debe agregar al formdata
+						formData.append('fileid', data.file)
+						apiCloneAxios(`media/magazine/${ urlParamsGet().magazine }/image/cover`,
+							formData,
+							res => console.log("Image Cover Clone Guardada"),
+							error => console.log("Cover Clone" , error)
+						)
+					},
+					error => {
+						console.log("Revista Clone" , error)
+				})
+			}
+			if( action == 'mediaSave'){
+				let formData = new FormData();
+				formData.append('album' , 'article')
+				formData.append('fileSize' , data.file.size)
+				formData.append('fileid', data.file)
+				apiCloneAxios(`media/magazine/${ urlParamsGet().magazine }/image/article`,
+							formData,
+							res => console.log("Image Clone Guardada"),
+							error => console.log("Image Clone" , error)
+						)
+			}
+			if(action == 'articleSave'){
+				axios.put(`revista/${ urlParamsGet().magazine }/articulo/${ urlParamsGet().article }?token=${localStorage.getItem('tokenApiClone')}` , 
+					{
+						html:data
+					}, 
+					{
+						headers: {
+							'Content-Type': 'application/json',
+							'Authorization': localStorage.getItem("token") ,
+						}
+					})
+					.then( res => console.log(' Copia Guardada '))
+					.catch( error => console.log(' Copia NO Guardada ' , error ))
+			}
+		}
+		
+		async function launch( html ){
+		
+			// Set up GrapesJS editor with the Newsletter plugin
+			editor = grapesjs.init({
+					height: '100%',
+					//noticeOnUnload: 0,
+					storageManager:{
+						autoload: 0,
+					},
+					assetManager: { 
+						assets:[],
+						upload: addToken('/refam/upload/editor/?magazine='+urlParamsGet().magazine),
+						uploadName: 'files',
+						uploadText: 'Click para subir archivo',
+						uploadFile: function(e) {
+							var files = e.dataTransfer ? e.dataTransfer.files : e.target.files;
+							// ...send somewhere
+							var formData = new FormData();
+							formData.append('fileid', files[0])
+							uploadProccessActive = true
+							axios.post(addToken('/refam/upload/editor/?magazine='+urlParamsGet().magazine) , formData , {
+								headers: {
+									'Content-Type': 'multipart/form-data'
+								}
+							})
+							.then( res => {
+								uploadProccessActive = false
+								if(res.data.error) alertWarning(res.data.error)
+								else{
+									editor.AssetManager.add( res.data.result )
+									alertSuccess("Guardado")
+								}
+							}).catch(function (error) {
+								uploadProccessActive = false
+								alertWarning("INTENTE EN OTRO MOMENTO O COMUNIQUESE CON EL DESARROLLADOR\n" + error)
+							})
+						}
+					},
+
+					container : '#gjs',
+					fromElement: true,
+					plugins: ['gjs-preset-newsletter'],
+					pluginsOpts: {
+						'gjs-preset-newsletter': {
+							modalLabelImport: 'Paste all your code here below and click import',
+							modalLabelExport: 'Copy the code and use it wherever you want',
+							codeViewerTheme: 'material',
+							defaultTemplate: html,
+							importPlaceholder:html
+						},
+					}		
+				})
+			
+			document.querySelector('#gjs-pn-devices-c>div').children[2].click()
+			document.querySelector('#gjs-pn-devices-c').style.opacity = "0"
+			if(urlParamsGet().article == "0"){
+				//document.querySelector('.gjs-frame').style.display = "none"
+				//document.querySelector('#gjs-pn-views').style.display = "none"
+				//document.querySelector('#gjs-pn-views-container').style.display = "none"
+				//Array.from(document.querySelector('#gjs-pn-devices-c').children).forEach( item => item.style.display = "none" )
+				//document.querySelector('#gjs-pn-devices-c').childrem
+				//document.querySelector('#gjs-pn-commands').style.display = "none"
+			}
+			editor = editor_blockManager(editor)
+
+            editor.Commands.add('show-blocks', {
+                getRowEl(editor) {
+                    return editor.getContainer().closest('body');
+                },
+                getBlocksEl(row) {
+                    return row.querySelector('.blocks-container')
+                },
+
+                run(editor, sender) {
+                    const lmEl = this.getBlocksEl(this.getRowEl(editor));
+                    lmEl.style.display = '';
+                },
+                stop(editor, sender) {
+                    const lmEl = this.getBlocksEl(this.getRowEl(editor));
+                    lmEl.style.display = 'none';
+                },
+            })
+
+
+			// Let's add in this demo the possibility to test our newsletters
+			var panels = editor.Panels;
+			var commands = editor.Commands;
+			var testContainer = document.getElementById("test-form");
+			var contentEl = testContainer.querySelector('input[name=body]');
+			md = editor.Modal;
+
+
+			/* enviar por correo */
+			editor_addButtons(panels)
+			commands.add('send-to-magazine', {
+				async run(editor, sender) {
+					proccessActive = "move"
+					if(magazinesStore() == null){
+						await magazinesList()
+					}
+					modalOpen('long','SELECCIONE UNA REVISTA', '#magazines-container')
+				}
+			});
+
+			/* btn guardar articulo */
+			commands.add('article-cover-update', {
+				run(editor, sender) {
+					let input = document.createElement('input')
+					input.type = 'file'
+					input.onchange = e => {
+						var files = e.dataTransfer ? e.dataTransfer.files : e.target.files;
+						// ...send somewhere
+						var formData = new FormData();
+						formData.append('fileid', files[0])
+						axios.post(addToekn( "/refam/upload/editor/?coverArticle="+urlParamsGet().article ) , formData , {
+							headers: {
+								'Content-Type': 'multipart/form-data'
+							}
+						})
+						.then( res => {
+							if(res.data.error) 
+								alertWarning("INTENTE EN OTRO MOMENTO O COMUNIQUESE CON EL DESARROLLADOR\n" + error)
+							else{
+								editor.AssetManager.add( res.data.result )
+								alertSuccess("Guardado")
+								e.target.remove()
+							}
+						}).catch(function (error) {
+							alertWarning("INTENTE EN OTRO MOMENTO O COMUNIQUESE CON EL DESARROLLADOR\n" + error)
+							e.target.remove()
+						})
+					}
+					document.body.appendChild(input)
+					input.click()
+					document.querySelector('.fa-image').classList.remove('gjs-pn-active')
+				}
+			})
+
+			commands.add('article-save', {
+				run(editor, sender) {
+					if(document.querySelector("iframe").contentWindow.document.body.querySelector('.gjs-comp-selected') != undefined)
+						document.querySelector("iframe").contentWindow.document.body.querySelector('.gjs-comp-selected').classList.remove('gjs-comp-selected')
+					
+					let imgs = document.querySelector('iframe').contentWindow.document.querySelectorAll('img')
+					/*
+					for(let img of imgs){
+						img.setAttribute( 'class-back' , img.className )
+						img.className = ''
+					}*/
+					let htmlNew = ''
+					let box = document.querySelector('iframe').contentWindow.document.querySelector('#wrapper')
+					for(let child of box.children){
+						if(child.nodeName != 'LINK'){
+							htmlNew += child.outerHTML
+						}
+					}
+					htmlNew = document.querySelector('iframe').contentWindow.document.body.innerHTML
+					const imagesBack = ()=>{
+						for(let img of imgs){
+							img.className = img.getAttribute('class-back')
+						}
+					}
+					axios.post(addToken( '/refam/api/magazine/setHtml/'+urlParams['article'] ) , {
+						articleIdSaveFile:localStorage.getItem('articlefile') , 
+						htmlNew
+					})
+						.then( res => {
+							if(res.data.error) alertWarning(res.data.error)
+							else{
+								alertSuccess('Guardado')
+								if(document.querySelector('.fa-save.gjs-pn-active') != undefined){
+									document.querySelector('.fa-save.gjs-pn-active').click()
+								}
+							}
+							//imagesBack()
+						}).catch(function (error) {
+							alertWarning('INTENTE EN OTRO MOMENTO O COMUNIQUESE CON EL DESARROLLADOR\n' + error)
+							if(document.querySelector('.fa-save.gjs-pn-active') != undefined){
+								document.querySelector('.fa-save.gjs-pn-active').click()
+							}
+							//imagesBack()
+						})
+				}
+			} )
+
+
+			commands.add('article-exit', {
+					run(editor, sender) {
+						location.href = '/refam/editor?magazine='+urlParamsGet()['magazine']+'&token='+localStorage.getItem("token")
+					}
+			})
+
+
+			/* panel option, boton > modal galeria de revistas */
+			const magazinesContainer = document.getElementById("magazines-container");
+			commands.add('magazines-open', {
+
+				run(editor, sender) {
+					sender.set('active', 0);
+					var mdlDialog = document.querySelector('.gjs-mdl-dialog');
+					mdlDialog.className += ' ' + modalClassLong;
+					magazinesContainer.style.display = 'block';
+					md.setTitle('Revistas');
+					md.setContent('');
+					md.setContent(magazinesContainer);
+					md.open();
+					md.getModel().once('change:open', function() {
+						mdlDialog.className = mdlDialog.className.replace(modalClassLong, '');
+					})
+					magazinesList()
+				}
+			})
+			/* panel option, boton > modal revista nueva */
+			const maganzineNew = document.querySelector("#magazine-new");
+			commands.add('magazine-new', {
+				run(editor, sender) {
+					sender.set('active', 0);
+					var mdlDialog = document.querySelector('.gjs-mdl-dialog');
+					mdlDialog.classList.toggle(modalClassLittle);
+					maganzineNew.style.display = 'block';
+					md.setTitle('REVISTA NUEVA');
+					md.setContent('');
+					md.setContent(maganzineNew);
+					md.open();
+					md.getModel().once('change:open', function() {
+						mdlDialog.classList.toggle(modalClassLittle);
+					})
+				}
+			})
+			/* panel option, boton > galeria prefenidos*/
+			let templatesStore = true
+			const templatesContainer = document.querySelector("#templates-container");
+			commands.add('open-templates', {
+
+				run(editor, sender) {
+					sender.set('active', 0);
+					var mdlDialog = document.querySelector('.gjs-mdl-dialog');
+					mdlDialog.classList.toggle(modalClassBottom);
+					//templatesContainer.style.display = 'block';
+					md.setTitle('Plantillas');
+					md.setContent('');
+					md.setContent(templatesContainer);
+					md.open();
+					md.getModel().once('change:open', function() {
+						mdlDialog.classList.toggle(modalClassBottom);
+					})
+
+					if(!templatesStore){
+						templatesStore = false
+						fetch('/templates/all')
+						.then( async res =>{
+							let result = await res.json()
+							for(let templates of result){
+								let btn = createItemPanelCover(templates)
+								btn.children[1].setAttribute('htmlFile', templates.htmlFile)
+								btn.children[1].onclick = e => {
+									//editor.urlLoad(e.target.getAttribute('htmlFile'))
+									importTemplate('template' , e.target.getAttribute('htmlFile'))
+								}
+								document.querySelector("#templates").appendChild(btn)
+							}
+						})
+					}
+				}
+			})
+
+			if(document.querySelector("iframe") != undefined){
+				document.querySelector("iframe").style.width = "585px"
+			}
+			
+
+			//fa fa-refresh
+				var statusFormElC = document.querySelector('.form-status');
+				var statusFormEl = document.querySelector('.form-status i');
+			// Simple warn notifier
+				var origWarn = console.warn;
+				toastr.options = {
+					closeButton: true,
+					preventDuplicates: true,
+					showDuration: 250,
+					hideDuration: 150
+				};
+				console.warn = function (msg) {
+					toastr.warning(msg);
+					origWarn(msg);
+				};
+
+			$(document).ready(function () {
+				// Beautify tooltips
+				$('*[title]').each(function () {
+					var el = $(this);
+					var title = el.attr('title').trim();
+					if(!title)
+					return;
+					el.attr('data-tooltip', el.attr('title'));
+					el.attr('title', '');
+				});
+
+			});
+			document.querySelector('#gjs-pn-options').children[0].children[2].style = "display:none"
+			document.querySelector('#gjs-pn-options').children[0].children[3].style = "display:none"
+			document.querySelector('#gjs-pn-options').children[0].children[4].style = "display:none"
+			
+			document.querySelector('#gjs-pn-options').children[0].children[2].style = "display:none"
+
+			let images = await axios.get(addToken( '/refam/api/medias/?magazine='+urlParamsGet().magazine ))
+			for(let media of images.data.result){
+				let item = media
+				if(item.type == 'video')
+					item = { type:'video', category: 'video', src: item.src }
+				editor.AssetManager.add( item ) 
+			}
+			// fonts add 
+			setTimeout( ()=> { 
+				let ignore = ['/refam/fontsCustom/georgia.ttf','/refam/fontsCustom/helvetica.ttf','/refam/fontsCustom/comic sans ms.ttf','/refam/fontsCustom/tahoma.ttf','/refam/fontsCustom/HighlandGothicFLF.ttf']
+				axios.get('/refam/api/fonts').then( res => {
+					let fonts = res.data.filter(item => {
+						console.log( item )
+						return ignore.indexOf(item.toLowerCase()) == -1
+					})
+					fontsAdd( fonts )
+				 })
+			} , 2000)
+
+			editorGet(editor)
+		}
+
+		/* para abrir articulos templates */
+
+		function importTemplate(type, url){
+			localStorage.setItem("gjs-css","")
+			localStorage.setItem("gjs-components","")
+			localStorage.setItem("gjs-assets","")
+			localStorage.setItem("gjs-html","")
+			editor = null
+			if(url != undefined){
+				const insertHTML = template => {
+					localStorage.setItem('gjs-html', template);
+					launch( template )
+					autoImport()
+					stylesAdd()
+				}
+				if(type == 'article'){
+					console.log('article')
+					axios.get(addToken( url ))
+					.then( async res => {
+						localStorage.setItem('articlefile',res.data.articleName)
+						insertHTML(`
+								<link rel="stylesheet" href="/refam/css/style.css">
+								<link rel="stylesheet" href="/refam/css/fontsCustom.css">
+								${res.data.result}`)
+					})
+				}
+				if(type == 'template'){
+					$.get(addToken(url), template => {
+						for(let a of ["css","images","video","audio","svg"]){
+							template = template.replaceAll(' src="/'+a, ' src="/refam/'+a);
+						}
+						template = template.replaceAll(' href="/css', ' href="/refam/css');
+						insertHTML( template )
+						stylesAdd()
+					})
+				}
+			}else{
+				launch( "<h3 style='color:blue;text-align:center'>¡¡Hola mundo!!</h3><link rel='stylesheet' href='/refam/css/style.css'>" )
+				autoImport()
+			}
+		}
+
+
+		if(urlParamsGet()['article'] != "0" || urlParamsGet()['template'] != undefined){
+			if( urlParamsGet()['article'] != "0" ){
+				document.querySelector('.headerRefam').style = "display:none"
+				document.querySelector('.heading-title').style = "display:none"
+				
+				document.querySelector('#menuIntro').style.display = "none"
+				importTemplate('article','/refam/api/magazine/getMagazineHtmlArticleByIdJSON?editor&articleId='+ urlParamsGet().article)
+			}
+			if( urlParamsGet()['template'] != undefined ){
+				importTemplate('template','/templates/'+urlParamsGet().template )
+			}
+		}else{
+			importTemplate()
+
+			let si1 = setInterval( ()=> {
+				if(editorGet() != undefined){
+					if(urlParamsGet()['magazine'] != "0"){
+						setTimeout( () =>  { 
+							document.querySelector('.fa-list').click() 
+							let magazines = document.querySelector('#magazines').children
+							let si2 = setInterval( () => {
+								if(magazines.length > 0){
+									for (let index = 0; index < magazines.length; index++) {
+										const element = magazines[index];
+										if(element.children[0].getAttribute('itemid') == urlParamsGet().magazine ){
+											element.children[1].click()
+										}
+										
+									}
+									clearInterval(si2)
+								}
+							},200)
+						}, 1000)
+					}
+					clearInterval(si1)
+				}
+			}, 200)
+		}
+
+		const evalMediasIframe = ()=>{
+			const mediasEvalExist = (mediasTarget , type, next) => {
+					if( mediasTarget !== null ){
+						let medias = Array.from( mediasTarget )
+						if( medias.length ){
+							const exists = (medias, i) => {
+								let validBackground = true
+								if(i == medias.length){
+									return next()
+								}
+								if(type == 'background'){
+									if(String(medias[i].innerText).split('background-image:url("').length == 1 ) 
+										validBackground = false
+									
+								}
+								if( validBackground == true ){
+									let url = [ ...(type == 'nodo' ? medias[i].src.split('/') : String(medias[i].innerText).split('background-image:url("')[1].split('"')[0].split('/') ) ]
+									const urlFile = url.join('/')
+									let nameFile = url.pop()
+									if( nameFile ){
+										axios.get( addToken( location.origin+'/magazine-media/exists/'+nameFile+'/'+urlParams.magazine ) )
+										.then( res => {
+											if(res['error'] != undefined) {
+												setTimeout( ()=>{ exists(medias , i) } , 10 * 1000)
+											}
+											else {
+												if(res.data.success.status == false)  {
+													if( type == 'nodo') medias[i].remove()
+													else {
+														medias[i].innerText  = medias[i].innerText.replace('url("'+urlFile+'")','initial')
+														console.log( medias[i].innerText )
+													} 
+												}
+										
+												exists( medias , ++i )
+											}
+										}).catch( error => setTimeout( ()=>{ exists(medias , i) } , 2000) )
+									}else exists( medias , ++i )
+								}else exists( medias , ++i )
+
+							}
+							exists( medias , 0)
+						}
+					}
+				}
+				if(document.querySelector("iframe") != undefined && uploadProccessActive == false){
+					mediasEvalExist( document.querySelector("iframe").contentWindow.document.querySelectorAll('img,video') , 'nodo' ,
+					()=>{
+						mediasEvalExist( Array.from(document.querySelector("iframe").contentWindow.document.querySelectorAll('style')).filter(
+							item => {
+								return String(item.innerText).split('background-image:url("').length > -1 
+							}
+						) , 'background' , ()=> setTimeout(()=> evalMediasIframe(), 30 * 1000) )
+					})
+				}else setTimeout(()=> evalMediasIframe(), 3000)
+		}
+		
+		setTimeout( ()=> evalMediasIframe(), 3000)
+		
+		setInterval( ()=>{
+			if(document.querySelector("iframe") != undefined && uploadProccessActive == false){
+				document.querySelector("iframe").style.width = "585px"
+				
+				if(document.querySelector('.gjs-trt-traits input') != undefined && modalState == false){
+					document.querySelector('.gjs-trt-traits input').parentNode.parentNode.parentNode.children[0].onclick = eInput =>{ 
+						document.querySelector('#videos').innerHTML = ""
+						for(let videoData of videosStore){
+							videosItemRender(videoData , eInput)
+						}
+						modalOpen('long','Videos','#videos-gallery')
+					}
+				}
+				let video = document.querySelector("iframe").contentWindow.document.querySelector('video')
+				if( video ){
+					video.parentNode.style = "padding-top:10px;padding-bttom:10px"
+					if( video.src.search('video') == -1 && video.getAttribute('droped') == undefined ){
+						video.parentNode.click()
+						document.querySelector('.fa-cog').click()
+						video.setAttribute('droped' , true)
+					}
+				}
+				
+				let divAll = document.querySelector("iframe").contentWindow.document.body.querySelectorAll('div')
+					for(let div of divAll ){
+						if(typeof div.style == 'string'){
+							if(div.id == 'wrapper' && div.parentNode.tagName !='BODY') {
+								if(String(div.style).search('background-image') == -1)
+									div.style += 'background-color:transparent !important;background:transparent !important'
+							}
+							if(div.innerText == '' && String(div.style).search('background-image') == -1 && div.parentNode.tagName != 'BODY') div.remove()
+						}
+					}
+			}
+			if(document.querySelector('#gjs-sm-color input') != undefined){
+				document.querySelector('#gjs-sm-color input').onchange = e =>{
+					document.querySelector("iframe").contentWindow.document.querySelector('.gjs-comp-selected').style.color = e.target.value
+				}
+			}
+			// imagen del final del documento
+
+			const getLastText = ()=>{
+				let allText = document.querySelector("iframe").contentWindow.document.querySelectorAll('p,div')
+				allText = Array.from(allText)
+				for (let index = allText.length - 1; index > -1; index--) {
+					let nodo = allText[index]
+					if(nodo.children.length == 0 && nodo.innerText != ''){
+						return nodo
+					}
+				}
+			}
+
+			if(document.querySelector("iframe")){
+				let selected = document.querySelector("iframe").contentWindow.document.querySelector('.gjs-comp-selected')
+				if( selected )
+					if( selected.tagName == 'P') selected.setAttribute('contenteditable' , true)
+				let lastEnd = document.querySelector("iframe").contentWindow.document.querySelector('.textEnd')
+				if(lastEnd != undefined){
+					if(lastEnd.children.length){
+						let lastEnd_ = lastEnd.children[0].outerHTML
+						element = getLastText()
+						element.innerHTML += lastEnd_
+						index = -1
+						lastEnd.className = ''
+						lastEnd.remove()
+						delete lastEnd
+					}
+				}
+			}
+		} , 3000)
+
+		const expresionRegularFilesName = /^[0-9a-zA-Z\.\-\_]+$/
+		let inputsFilesForValidation = document.querySelectorAll('input[file]')
+		for(let input of inputsFilesForValidation){
+			input.addEventListener('change', e => {
+				for(file of e.target.files){
+					if(!expresionRegularFilesName.test(file.name)){
+						inputsFilesForValidation = []
+						e.preventDefault()
+						alertWarning("Nombre de archivo no valido solo a-z A-Z 0-9 - _ ("+file.name+")")
+					}
+				}
+			})
+		}
+
+		setInterval( ()=>{
+			Array.from( document.querySelectorAll('div[data-toggle=asset-remove]') ).map( item =>{
+				item.onclick = e =>{
+					axios.delete(addToken( '/refam/api/gallery/image/0?name='+e.parentNode.children[0].innerText ))
+						.then( res => {
+							if(res.data.error){ alertWarning(res.data.error )}
+							else{ alertSuccess(res.data.result ); e.target.parentNode.remove() }
+						})
+						.catch( error => alertWarning('Error de red'))
+				}
+			})
+
+		} , 1000)
+
+	</script>
+	</body>
+<!--
+	<link rel="stylesheet" href="//unpkg.com/grapesjs@0.10.7/dist/css/grapes.min.css">
+-->
+
+
+	<link rel="stylesheet" href="/refam/css/grapes.css">
+
+	<style>
+
+		.gallery>.list>div>span:first-child{
+			border: 1px red solid;
+			position:relative;border-radius:50%;background:red;color:#fff;width:2rem;height:2rem;font:arial;display:flex;align-items:center;justify-content:center
+		}
+		.gallery>.list>div>span:first-child:hover{
+			cursor: pointer;
+			font-weight: bold;
+			border: 1px #aaa solid;
+		}
+		.gallery{
+			overflow-y: scroll;
+			max-height: calc(100vh - 4rem);
+		}
+		.gallery .list , #articles .list{
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: space-around;
+			align-items: flex-end;
+			max-width: 98%;
+		}
+		.gallery .list>div, #articles .list>div{
+			width:20%;
+			max-width: 20%;
+			min-width: 120px;
+			margin: 2rem .5rem;
+			display: flex;
+		    flex-direction: column;
+		}
+		.gallery .list>div>.itemTarget{
+			background-color:#aaa;
+			padding:.5rem;
+			margin:.5rem;
+			display:inline-block;
+			background-size: cover;
+			height: 200px;
+			margin-top: -2rem;
+			border: 5px #333 solid;
+			width: 100%;
+			min-width: 120px;
+		}
+		.gallery .list>div>.itemTarget:hover{
+			border: 5px #aaa solid;
+		}
+		
+		.gallery .list>div>.itemTarget>div{
+			word-break: break-word;background-color: rgba(0,0,0,.85);padding: 5px;color: #fff;text-align: right;
+		}
+		.list *[contenteditable]{
+				margin-top: -5rem;
+				position: relative;
+				background-color: #333;
+				opacity: .8;
+				color: #fff;
+				padding: .5rem;
+				font-size: 1rem;
+				width: calc(100% - 5px);
+				margin-left: 1rem;
+				text-align: right;
+				min-height: 5rem;
+				max-height: 5rem;
+				overflow-y: auto;
+		}
+		.dialog-bottom{
+			position: fixed;
+			bottom: 0;
+			margin:0;
+			width: 100%;
+			max-width: 100%;
+			height: 300px;
+		}
+		.dialog-bottom + .gjs-mdl-backlayer{
+			display:none
+		}
+		.dialog-bottom div .gallery .list>div{
+			width:10%;
+			max-width: 10%;
+			min-width: 130px;
+			cursor: pointer;
+		}
+		.form-group{
+			padding: 1rem;
+		}
+		.form-group label{
+			min-width: 10rem;
+		    display: inline-block;
+		}
+		#alertBox{
+			position: fixed;
+			bottom: 1rem;
+			left:1rem;
+			width: auto;
+			padding: 1rem;
+			z-index: 100;
+			opacity: 0;
+			display: none;
+			color:#fff
+		}
+		#alertBox.active{
+			display:flex;
+			opacity: 1;
+		}
+		.alertBox-close{
+			display: inline-block;
+			width: 1.5rem;
+			height: 1.5rem;
+			color: #333;
+			font-family: Arial, Helvetica, sans-serif;
+			margin: 0px 2rem;
+			font-weight: bold;
+			cursor: pointer;
+			font-size: 1.25rem;
+			line-height: 1.25rem;
+			text-transform: uppercase;
+		}
+		.alertBox-close:hover{
+			color:rgb(20, 18, 18)
+		}
+		.delete{
+			position:relative;
+			float: left;
+			margin-top:.5rem;
+			margin-right: -4.5rem;
+			border-radius:50%;
+			background:red;
+			color:brown;
+			width:2rem;
+			height:2rem;
+			font-family:arial;
+			display:flex;
+			align-items:center;
+			justify-content:center;
+			cursor: pointer;
+			font-size: 1.25rem;
+			text-transform: uppercase;
+			z-index: 1;
+		}
+		.delete:hover{
+			color:#fff
+		}
+		#gjs-pn-options{
+			z-index: 5;
+		}
+		#gjs-pn-views-container{
+			width: 30vw !important;
+		}
+		.gjs-blocks-c>div{
+			width: 7rem;
+		}
+		.gjs-blocks-c .gjs-block.fa.fa-link,
+		.gjs-blocks-c .gjs-block.fa.fa-th,
+		.gjs-blocks-c .gjs-block.fa.fa-th-list,
+		.gjs-blocks-c .gjs-block.fa.fa-quote-right{
+			font-size:1.5rem
+		}
+		.gjs-sm-sector .gjs-sm-properties, .gjs-clm-tags .gjs-sm-properties{
+			font-size: 1.2rem !important;
+		}
+		.article-page{    
+			z-index: 1;
+			width: 4rem;
+			position: relative;
+			float: right;
+			display: block;
+			margin-left: 1rem;
+			margin-top: -2rem;
+			box-shadow: 0px 0px 10px black;
+			border-radius: 10px;
+		}
+		.gjs-block{
+			justify-content: flex-start;
+		}
+		.gjs-blocks-c .gjs-block .gjs-block-label>div{
+			background-size: 50px;
+			background-origin: content-box;
+			background-repeat: no-repeat;
+			background-position: center 15px;
+			height: 68px;;
+		}
+		.gjs-blocks-c .gjs-block .gjs-block-label>div>div{
+			font-size: 1rem;
+		}
+		#menuIntro img{
+			border-radius: 25px;
+			width:180px;height:180px;margin:1rem
+		}
+		#menuIntro img:hover{
+			box-shadow: 0px 5px 10px #ddd;
+			cursor: pointer
+		}
+		.icon-magazine{
+			background-image: url(/refam/images/icon/iconos-revistas.png);
+			background-size: contain;
+		}
+		.gjs-block-label{
+			font-size:1rem
+		}
+		.gjs-mdl-container , .gjs-mdl-dialog{
+			max-height: calc(100vh - 4rem);
+		}
+		.gjs-mdl-content{
+			height: calc(100vh - 10rem);
+		}
+		.gjs-am-assets{
+			max-height: calc(100vh - 10rem);
+		}
+		.gjs-am-assets{
+			height:calc(100vh - 14rem)
+		}
+		.gjs-am-file-uploader{
+			width: 15%;
+		}
+		.gjs-am-assets-cont{
+			height: 100%;
+			width: 80%;
+		}
+		.gjs-am-preview-cont{
+			height: 200px;
+		}
+		.gjs-am-preview{
+			background-size: contain;
+		}
+		#gjs-pn-views-container div .gjs-trt-traits .gjs-trt-trait:nth-child(2) > div:first-child{
+			border:1px #ccc solid;
+			cursor: pointer;
+			padding: 5px;
+			text-align: center;
+			border-radius: 5px;
+			margin-right: 5px;
+		}
+		#gjs-pn-views-container div .gjs-trt-traits .gjs-trt-trait:nth-child(2) > div:first-child:hover{
+			background-color: #222;
+		}
+	</style>
+	<link rel="stylesheet" href="/refam/css/fontsCustom.css">
+	<link rel="stylesheet" href="/refam/css/style.css">
+	<style type="text/css">
+		video{
+			max-width: calc(100% - 20px);
+			width:100%;
+		}
+	</style>
+	<script src="/refam/javascript/editor_main.js"></script>
+</html>

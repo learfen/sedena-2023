@@ -1,0 +1,195 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <%- include('./partials/header'); %>
+<link rel="stylesheet" href="/refam/css/Chart.min.css">
+</head>
+<body>
+<%- include('./partials/nav_bar'); %>
+
+<div class="container-fluid datos">
+    <div class="row justify-content-end heading-page heading-v1">
+        <div class="col-11 col-md-4">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a class="text-light" href="/refam/menu">Inicio</a></li>
+                    <li class="breadcrumb-item"><a class="text-light" href="/refam/usuarios">Usuarios</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Estadisticas</li>
+                </ol>
+            </nav> 
+        </div>
+        <div class="col-12">
+            <div class="heading-title">
+                <h2>Estadisticas</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="row heading-page analytic-main-container">
+        <div class="col-md-4">
+            <div class="analytic-container">
+                <h2>Datos demográficos</h2>
+                <h6>Sexo</h6>
+                <p class="text-left pl-3">Hombres</p> <p class="text-left ml-0 float-right mr-3"><strong><%= String(charts.sexo.man) %></strong></p>
+                <br>
+                <p class="text-left pl-3"><strong>Mujeres</strong></p> <p class="text-left ml-0 float-right mr-3"><strong><%= String(charts.sexo.woman) %></strong></p>
+            </div>
+            <div class="analytic-container">
+                <h2>Artículos más leídos</h2>
+                <ol class="ranking-article-list">
+                    <% charts.articleMostRead.forEach((item, key) => { %>
+                        <li style="margin-bottom:2rem"> <a class="articleEditor" href="/refam/editor.html?editor=true&article=<%=item.id%>&magazine=<%=item.magazineId%>">
+                            <%= item.title %></a><br>
+                            Página: <%= item.page %> - Visitas:<%= item.visite %>
+                            <br>
+                            Revista:<%= item.magazine %>
+                        </li>
+                    <%  })  %>
+                </ol>
+            </div>
+            <div class="analytic-container" id="most-section-visited">
+                <h2>Secciones más Visitadas</h2>
+                <canvas id="chartSections" style="height: 400px"></canvas>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="analytic-container">
+                <h2>Datos SEDENA</h2>
+                <h5>Grado</h5>
+                
+                <canvas id="chartGrado" style="min-height: 300px"></canvas>
+
+                <h5 class="mt-3">Región</h5>
+                
+                <canvas id="chartRegion" style="min-height: 400px"></canvas>
+
+            </div>
+        </div>
+        <div class="col-md-12">
+            <h5 class="mt-3">Zona</h5>
+            <canvas id="chartZona" style="height: 400px"></canvas>
+        </div>
+    </div>
+</div>
+<script src="/refam/javascript/Chart.min.js" ></script>
+<script>
+    var charts =  <%- JSON.stringify( charts ) %>
+
+    var ctxGrado = document.getElementById('chartGrado');
+    var ctxRegion = document.getElementById('chartRegion');
+    var ctxZona = document.getElementById('chartZona');
+    var ctxSections = document.getElementById('chartSections');
+    function getRandColor(){
+        brightness = 1
+        // Six levels of brightness from 0 to 5, 0 being the darkest
+        var rgb = [Math.random() * 256, Math.random() * 256, Math.random() * 256];
+        var mix = [brightness*51, brightness*51, brightness*51]; //51 => 255/5
+        var mixedrgb = [rgb[0] + mix[0], rgb[1] + mix[1], rgb[2] + mix[2]].map(function(x){ return Math.round(x/2.0)})
+        return "rgba(" + mixedrgb.join(",") + ",1)";
+    }
+    function getColors( length ){
+        let result = []
+        for (let index = 0; index < length; index++) {
+            result.push( getRandColor() )
+        }
+        return result
+    }
+    var grado = new Chart(ctxGrado, {
+        type: 'horizontalBar',
+        data: {
+            labels: Object.keys(charts.grade),
+            datasets: [{
+                label: '# of Grados',
+                data: Object.values(charts.grade),
+                backgroundColor: getColors(Object.values(charts.grade).length),
+                borderColor: getColors(Object.values(charts.grade).length),
+                barThickness: 10,
+            }]
+        },
+        options: {
+            scales: {
+                xAxes: [{
+                    gridLines: {
+                        offsetGridLines: true
+                    }
+                }]
+            },
+            responsive: true
+        }
+    });
+    var region = new Chart(ctxRegion, {
+        type: 'horizontalBar',
+        data: {
+            labels: Object.keys(charts.region),
+            datasets: [{
+                label: '# of Region',
+                data: Object.values(charts.region),
+                backgroundColor: getColors(Object.values(charts.region).length),
+                borderColor: getColors(Object.values(charts.region).length),
+                barThickness: 10,
+            }]
+        },
+        options: {
+            scales: {
+                xAxes: [{
+                    gridLines: {
+                        offsetGridLines: true
+                    }
+                }]
+            },
+            responsive: true
+        }
+    });
+    var zona = new Chart(ctxZona, {
+        type: 'horizontalBar',
+        data: {
+            labels: Object.keys(charts.zone) ,
+            datasets: [{
+                label: '# of Zones',
+                data: Object.values(charts.zone),
+                backgroundColor: getColors(Object.values(charts.zone).length),
+                borderColor: getColors(Object.values(charts.zone).length),
+                barThickness: 10,
+            }]
+        },
+        options: {
+            scales: {
+                xAxes: [{
+                    gridLines: {
+                        offsetGridLines: true
+                    }
+                }]
+            },
+            responsive: true
+        }
+    });
+    //articlesCategory
+
+    var visitas = new Chart(ctxSections, {
+        type: 'horizontalBar',
+        width: 350,
+        data: {
+            labels: Object.keys(charts.sections) ,
+            datasets: [{
+                label: '# of Sections',
+                data: Object.values(charts.sections),
+                backgroundColor: getColors(Object.values(charts.sections).length),
+                borderColor: getColors(Object.values(charts.sections).length),
+                barThickness: 10,
+            }]
+        },
+        options: {
+            scales: {
+                xAxes: [{
+                    gridLines: {
+                        offsetGridLines: true
+                    }
+                }]
+            },
+            responsive: true
+        }
+    });
+</script>
+</body>
+</html>

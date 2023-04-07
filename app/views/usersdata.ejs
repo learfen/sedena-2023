@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('./partials/header'); %>
+
+</head>
+<body>
+
+<%- include('./partials/nav_bar'); %>
+
+<div class="container-fluid datos">
+    <div class="row justify-content-end heading-page heading-v1">
+        <div class="col-4">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a class="text-light" href="/refam">Inicio</a></li>
+                    <li class="breadcrumb-item"><a class="text-light" href="/refam/usuarios">Usuarios</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Datos</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="col-12">
+            <div class="heading-title">
+                <h2>Datos</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="row heading-page justify-content-center pt-3 pb-1 bg-gray">
+        <div class="col-md-3 text-center">
+            <a href="/refam/usuariosRegristro" class="btn btn-danger text-white">Crear Usuario</a>
+        </div>
+        <div class="col-4">
+            <form class="form-inline">
+                <div class="form-group mb-2">
+                    <select class="custom-select" id="user-actions">
+                        <option>Acciones en lote</option>
+                        <option value="activate">Activar</option>
+                        <option value="deactivate">Desactivar</option>
+                        <option value="delete">Eliminar</option>
+                    </select>
+                </div>
+                <div class="form-group mb-2">
+                    <button id="user-action" class="btn btn-primary ml-2">Aplicar</button>
+                </div>
+            </form>
+        </div>
+        <div class="col-4">
+            <form class="form-inline">
+                <form action="/refam/usuariosDatos">
+                    <div class="form-group mb-2">
+                        <div class="form-group">
+                                <input id="search-user" type="text" name="q" class="form-control" placeholder="Consulta">
+                        </div>
+                    </div>
+                    <div class="form-group mb-2">
+                        <button type="submit" class="btn btn-primary ml-2">Buscar</button>
+                    </div>
+                </form>
+            </form>
+        </div>
+        <div class="col-sm-9">
+            <form class="form-inline" action="/refam/api/users/downloadReport" method="post">
+                <div class="form-group mb-2">
+                    <button type="submit" id="search-download-report" class="btn btn-primary ml-2" style="background-color: #388e3c;   border: none;">Descargar Reporte</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row justify-content-center content-table heading-page pt-3">
+        <div class="col-12">
+            <table class="table table-hover main-table">
+                <thead class="thead-dark">
+                <tr>
+                    <th colspan="2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="check-all">
+                            Estatus
+                        </div>
+                    </th>
+                    <th>Role</th>
+                    <th>Matrícula</th>
+                    <th>Correo Electronico</th>
+                    <th>Grado</th>
+                    <th>Especialidad</th>
+                    <th>Nombre</th>
+                    <th>Región</th>
+                    <th>Zona</th>
+                    <th>Unidad</th>
+                    <th>Nacimiento</th>
+                    <th>Sexo</th>
+                    <th>TOKEN</th>
+                </tr>
+                </thead>
+                <tbody id="table-content">
+                <tr id="loader"></tr>
+
+                <% if (users.length > 0) { %>
+                    <% users.forEach((user, key) => { %>
+                    <tr>
+                        <td colspan="2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="<%= user.id %>"
+                                       id="check-<%= user.enrollment %>">
+
+                                <% if (user.status === 1) { %>
+                                    Activo
+                                <% } else { %>
+                                    Inactivo
+                                <% } %>
+                            </div>
+                        </td>
+                        <td>
+                            <select original="<%= user.role %>" name="role" user="<%= user.id %>">
+                                <% if (+user.role == 0) { %>
+                                    <option value="0" selected>Usuario</option>
+                                <% }else{ %>
+                                    <option value="0">Usuario</option>
+                                <% } %>
+                                <% if (+user.role == 3) { %>
+                                    <option value="3" selected>Admin</option>
+                                <% }else{ %>
+                                    <option value="3">Admin</option>
+                                <% } %>
+                                <% if (+user.role == 2) { %>
+                                    <option value="2" selected>Editor</option>
+                                <% }else{ %>
+                                    <option value="2">Editor</option>
+                                <% } %>
+                                <% if (+user.role == 1) { %>
+                                    <option value="1" selected>Escritor</option>
+                                <% }else{ %>
+                                    <option value="1">Escritor</option>
+                                <% } %>
+
+                            </select>
+                        </td>
+                        <td><%= user.enrollment %></td>
+                        <td><%= user.email %></td>
+                        <td><%= user.grade %></td>
+                        <td><%= user.speciality %></td>
+                        <td><%= user.completeName %></td>
+                        <td><%= user.militarRegion %></td>
+                        <td><%= user.militarZone %></td>
+                        <td><%= user.militarUnity %></td>
+                        <td><%= user.birthDate %></td>
+                        <td>
+                            <%= user.gender.slice(0,1) %>
+                        </td>
+                        
+                        <td><%= user.tokenFirebase %></td>
+                    </tr>
+                    <% }) %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="12">No hay registros</td>
+                    </tr>
+                <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <%- include('./partials/pagination_found'); %>
+    <!--
+    <div class="row justify-content-center heading-page bg-gray text-center pt-4 mt-4">
+        <div class="col-5">
+            <span class="total-elements" id="total-items-users"></span>
+            <nav class="d-md-inline-flex" aria-label="Page navigation example">
+                <ul class="pagination justify-content-center" id="paginator" data-page-number="1"
+                    data-items-per-page="10">
+                    <li class="page-item">
+                        <button class="page-link" id="first-user-page" onclick="get_next_user_page(this.id)"
+                                aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </button>
+                    </li>
+                    <li class="page-item">
+                        <button class="page-link" id="prev-user-page" onclick="get_next_user_page(this.id)"
+                                aria-label="Previous">
+                            <span aria-hidden="true">&lt;</span>
+                        </button>
+                    </li>
+                    <span class="page-count" id="current-user-pages"> 1  </span>
+                    <span class="page-count"> de </span>
+                    <span class="page-count" id="total-user-pages"></span>
+                    <li class="page-item">
+                        <button id="next-user-page" class="page-link" onclick="get_next_user_page(this.id)"
+                                aria-label="Next">
+                            <span aria-hidden="true">&gt;</span>
+                        </button>
+                    </li>
+                    <li class="page-item">
+                        <button id="last-user-page" class="page-link" onclick="get_next_user_page(this.id)"
+                                aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+    -->
+</div>
+<script src="/refam/javascript/axios.js"></script>
+<script src="/refam/javascript/main.js"></script>
+
+<script>
+
+    const roleSelects = document.querySelectorAll("select[name=role]")
+    for(let select of roleSelects){
+        select.addEventListener('change' , function(e){
+            axios.post("/refam/api/auth/setRole",
+                {
+                    role:e.target.value,
+                    id:e.target.getAttribute("user")
+                },
+                { headers: { 'Authorization': localStorage.getItem("token") } }
+            ).then( res => {
+                if(res.data.error != undefined){
+                    e.target.value = e.target.getAttribute("original")
+                    alertWarning( res.data.error )
+                }else{
+                    alertSuccess( "Guardado" )
+
+                }
+            })
+            .catch( error => {
+                e.target.value = e.target.getAttribute("original")
+                alertWarning( error )
+            })
+            
+        })
+    }
+</script>
+</body>
+</html>

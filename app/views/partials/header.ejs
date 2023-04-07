@@ -1,0 +1,123 @@
+<script id="evaluationToken">
+		if(window.location.href.replace(window.origin, "") != "/refam/login"){
+			if(localStorage.getItem("token") == undefined || localStorage.getItem("token") == ""){
+				location.href = "/refam/login"
+			}
+		}
+	document.querySelector('#evaluationToken').remove()
+</script>
+<!-- meta tags -->
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+<link rel="stylesheet" href="/refam/bootstrap-4.0.0-dist/css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="/refam/css/style.css" />
+<link rel="stylesheet" type="text/css" href="/refam/css/main.css" />
+
+<!-- RESOURCES WEB 
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+-->
+<script src="/refam/javascript/popper.min.js"></script>
+
+<script src="/refam/javascript/jquery-3.5.1.min.js"></script>
+<script src="/refam/bootstrap-4.0.0-dist/js/bootstrap.min.js"></script>
+
+<script src="/refam/javascript/env.js"></script>
+<script src="/refam/javascript/constants.js"></script>
+
+
+<div id="alertBox" style="display: none;">
+    <span class="alertBox-close"> x </span>
+    <span id="alertBoxText"></span>
+</div>
+
+<style>
+	#alertBox{
+		position: fixed;
+		top: 0;
+		z-index: 10;
+		width: 100%;
+	}
+	.alertBox-close{
+        display: inline-block;
+        width: 1.5rem;
+        height: 1.5rem;
+        color: brown;
+        margin: 0px 2rem;
+        font-weight: bold;
+		cursor: pointer;
+		font-size: 1.25rem;
+		line-height: 1.25rem;
+		text-transform: uppercase;
+    }
+	.alertBox-close:hover{
+		color:#fff
+	}
+	.delete{
+		position:relative;
+		float: left;
+		margin-top:.5rem;
+		margin-right: -4.5rem;
+		border-radius:50%;
+		background:red;
+		border:1px red solid;
+		color:yellow;
+		width:2rem;
+		height:2rem;
+		font-family:arial;
+		display:flex;
+		align-items:center;
+		justify-content:center;
+		cursor: pointer;
+		font-size: 1.25rem;
+		text-transform: uppercase;
+		z-index: 1;
+	}
+	.delete:hover{
+		color:#fff;
+		border:1px #fff solid
+	}
+	.table-video td.text{
+		padding: 1rem;
+	    word-break: break-all;
+	}
+</style>
+
+
+<script>
+	const alertBox = document.querySelector("#alertBox")
+	const alertBoxText = document.querySelector("#alertBoxText")
+
+	alertBox.children[0].onclick = ( e ) =>  { e.target.parentNode.style.display = "none" }
+
+	function alertSuccess(txt){
+		alertBox.style.display = "flex"
+		alertBox.style.background="green"
+		alertBoxText.innerHTML = txt
+	}
+
+	function alertWarning(txt){
+		alertBox.style.display = "flex"
+		alertBox.style.background="orange"
+		alertBoxText.innerHTML = txt
+	}
+	const expresionRegularFilesName = /^[0-9a-zA-Z\.\-\_]+$/
+	let inputsFilesForValidation = document.querySelectorAll('input[file]')
+	for(let input of inputsFilesForValidation){
+		input.addEventListener('change', e => {
+			for(file of e.target.files){
+				if(!expresionRegularFilesName.test(file.name)){
+					inputsFilesForValidation = []
+					e.preventDefault()
+					alertWarning("Nombre de archivo no valido solo a-z A-Z 0-9 - _ ("+file.name+")")
+				}
+			}
+		})
+	}
+</script>

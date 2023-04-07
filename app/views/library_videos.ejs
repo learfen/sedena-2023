@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('./partials/header'); %>
+</head>
+<body>
+<%- include('./partials/nav_bar'); %>
+
+<div class="container-fuid datos">
+    <div class="row justify-content-end heading-page heading-v6">
+        <div class="col-10 col-md-3">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a class="text-light" href="#">Inicio</a></li>
+                    <li class="breadcrumb-item"><a class="text-light">Biblioteca</a></li>
+                </ol>
+            </nav>
+        </div>
+        <div class="col-12">
+            <div class="heading-title">
+                <h2>Biblioteca Multimedia</h2>
+            </div>
+        </div>
+    </div>
+    <div class="row heading-page justify-content-center pt-3 pb-1 bg-gray">
+        <div class="col-md-3 text-center">
+            <input style="display:none" type="file" name="" id="videoUpload">
+            <button onclick="videoUpload.click()" class="btn btn-danger text-white">Cargar Videos</button>
+        </div>
+        <div class="col-4">
+            <form class="form-inline">
+                <div class="form-group mb-2">
+                    <select class="custom-select">
+                        <option>Acciones en lote</option>
+                    </select>
+                </div>
+                <div class="form-group mb-2">
+                    <button type="submit" class="btn btn-primary ml-2">Aplicar</button>
+                </div>
+            </form>
+        </div>
+        <div class="col-4">
+            <form class="form-inline">
+                <div class="form-group mb-2">
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Consulta">
+                    </div>
+                </div>
+                <div class="form-group mb-2">
+                    <button type="submit" class="btn btn-primary ml-2">Buscar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row heading-page justify-content-center pt-3 bg-white">
+        <div class="col-10">
+            <div class="row">
+                <div class="col-10">
+                    <ul class="nav" id="pills-tab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home"
+                               role="tab" aria-controls="pills-home" aria-selected="true">Catalogo</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile"
+                               role="tab" aria-controls="pills-profile" aria-selected="false">Gestión</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-12">
+                    <div class="tab-content" id="pills-tabContent">
+                        <div class="tab-pane fade show active" id="pills-home" role="tabpanel"
+                             aria-labelledby="pills-home-tab">
+                            <div id="videos-all" class="grid-cards" style="display: flex;flex-wrap: wrap;">
+                                <% videos.forEach((video, key) => { %>
+                                    <li name="video-<%= video.id %>" class="gallery-item" style="display: inline-block;width:calc(25% - 2rem);margin:1rem">
+                                        <video class="ml-2" width="100%" height="180px" controls>
+                                            <source src="/refam/video/<%= video.name %>" type="video/mp4">
+                                          Tu navegador no soporta videos
+                                        </video>
+                                    </li>
+                                <% }) %>
+
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="pills-profile" role="tabpanel"
+                             aria-labelledby="pills-profile-tab">
+                            <div class="row content-table pt-3">
+                                <div class="col-12">
+                                    <table class="table-videos table table-striped magazine-table table tab-table mb-3">
+                                        <thead class="thead-dark">
+                                        <tr>
+                                            <th>Video</th>
+                                            <th>Archivo</th>
+                                            <th>Nombre</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody id="video-grid">
+
+                                        <% videos.forEach((video, key) => { %>
+                                            <tr>
+                                                <td>
+                                                    <video class="ml-2" controls width="180px" height="120px" src="/refam/api/library/get?videoName=<%= video.name %>">
+                                                        Tu navegador no soporta videos
+                                                    </video>
+                                                </td>
+                                                <td class="text">
+                                                    <a target="_blank"
+                                                       href="/refam/api/library/get?videoName=<%= video.name %>">
+                                                       /refam/api/library/get?videoName=<%= video.name %>
+                                                    </a>
+                                                </td>
+                                                <td> 
+                                                    <div class="route" itemid="<%= video.id %>" style="min-width:100%;min-height:1rem;background-color:#eee;border:1px #aaa solid;border-radius:5px" 
+                                                        contenteditable="true"><%= video.route %></div>    
+                                                </td>
+                                                <td class="text">
+                                                    <button name="delete" itemid="<%= video.id %>">Eliminar</button>
+                                                </td>
+                                            </tr>
+
+                                        <% }) %>
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('./partials/pagination_found'); %>
+</div>
+<script src="/refam/javascript/axios.js"></script>
+<script>
+    const nodo = nodename => { return document.createElement(nodename) }
+    function addEventsDeleteVideos(){
+        let deletes = document.querySelectorAll('button[name=delete]')
+        if(deletes){
+            Array.from(deletes).map( item => {
+                item.addEventListener( 'click' , e => {
+                    axios.delete("/refam/api/library/video/"+e.target.getAttribute('itemid'))
+                    .then( res => {
+                        if(res.data.error){
+                            alertWarning(res.data.error)
+                            return
+                        }
+                        alertSuccess('Borrado')
+                        document.querySelector('li[name=video-'+e.target.getAttribute('itemid')+']').remove()
+                        e.target.parentNode.parentNode.remove()
+                    }).catch( error => { alertWarning(error.message) ; console.log(error) })
+                } , false )
+                return item
+            })
+        }
+    }
+
+    function renderLi( videoData ){
+        videoData.src = "/refam/api/library/get?videoName="+videoData.src
+        let video = nodo('video')
+        video.className = 'ml-2'
+        video.style = 'width:100%;height:180px'
+        video.src = videoData.src
+        video.setAttribute('controls', true)
+
+        let videoLi = nodo('li')
+        videoLi.className = 'gallery-item'
+        videoLi.setAttribute('name','video-'+videoData.id)
+        videoLi.style = 'display: inline-block;width:calc(25% - 2rem);margin:1rem'
+        videoLi.appendChild(video)
+
+        document.querySelector('#pills-tabContent>div').prepend(videoLi)
+    }
+    
+    function renderRow(videoData){
+        videoData.src = "/refam/api/library/get?videoName="+videoData.src
+        let video = nodo('video')
+        video.src = videoData.src
+        video.setAttribute('controls', true )
+        video.style = 'width:180px;height:120px'
+        video.className = 'ml-2'
+        let videoTd = nodo('td')
+        videoTd.appendChild(video)
+
+        let link = nodo('a')
+        link.setAttribute('target','_blank')
+        link.setAttribute('href', videoData.src )
+        link.innerHTML = videoData.src
+        let linkTd = nodo('td')
+        linkTd.appendChild(link)
+        
+        let action = nodo('button')
+        action.setAttribute('name','delete')
+        action.setAttribute('itemid', videoData.id)
+        action.innerHTML = 'Eliminar'
+        let actionTd = nodo('td')
+        actionTd.appendChild(action)
+        
+        let route = nodo('div')
+        route.style ="min-width:100%;min-height:1rem;background-color:#eee;border:1px #aaa solid;border-radius:5px"
+        route.setAttribute('contenteditable',true)
+        route.setAttribute('itemid', videoData.id)
+        route.innerText =  videoData.route
+        route.className = 'route'
+        let routeTd = nodo('td')
+        routeTd.appendChild( addEventsNamesVideos(route) )
+
+        let tr = nodo('tr')
+        document.querySelector('#video-grid').prepend(tr)
+        tr.appendChild(videoTd)
+        tr.appendChild(linkTd)
+        tr.appendChild(routeTd)
+        tr.appendChild(actionTd)
+    }
+    // upload videos
+    document.querySelector('#videoUpload').addEventListener( 'change' , e => {
+            var files = e.dataTransfer ? e.dataTransfer.files : e.target.files;
+            var formData = new FormData();
+            formData.append('fileid', files[0])
+            alertWarning("Subiendo no salga de la pagina")
+            axios.post('/refam/upload/editor/' , formData , {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': localStorage.getItem("token") ,
+                    'x-access-token': localStorage.getItem('token') ? localStorage.getItem('token') : ''
+                }
+            })
+            .then( res => {
+                renderRow(res.data.result)
+                renderLi(res.data.result)
+                alertSuccess("Guardado")
+                addEventsDeleteVideos()
+            }).catch(function (error) {
+                console.log(error)
+                alertWarning("INTENTE EN OTRO MOMENTO O COMUNIQUESE CON EL DESARROLLADOR\n" + error.message)
+            })
+    } , false )
+    addEventsDeleteVideos()
+
+    function addEventsNamesVideos(route){
+        route.onfocus = e => { e.target.setAttribute('original', e.target.innerText) }
+        route.onblur = e => {
+            if( e.target.getAttribute('original') != e.target.innerText ) { 
+                e.target.onchange(e)
+            }
+        }
+        route.onchange = e => { 
+            axios.post(`/refam/editor/video/update/${e.target.getAttribute('itemid')}/route/${e.target.innerText}`)
+            .then( res => {
+                alertSuccess("Actualizado")
+            })
+            .catch( res => {
+                alertWarning("Hubo un error al intentar actualizar")
+            })
+        }
+        return route
+    }
+
+    let routes = document.querySelectorAll('div[contenteditable]')
+    if(routes){
+        Array.from(routes).map( route => {
+            return addEventsNamesVideos( route )
+        })
+    }
+</script>
+</body>
+</html>

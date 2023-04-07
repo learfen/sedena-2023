@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('./partials/header'); %>
+</head>
+<body>
+<%- include('./partials/nav_bar'); %>
+
+<div class="container-fuid datos">
+    <div class="row justify-content-end heading-page heading-v3">
+        <div class="col-3">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a class="text-light" href="/refam/menu">Inicio</a></li>
+                    <li class="breadcrumb-item active">Revistas</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="col-12">
+            <div class="heading-title">
+                <h2>Revistas</h2>
+            </div>
+        </div>
+    </div>
+    <div class="row heading-page bg-gray justify-content-center pt-3 pb-1">
+        <div class="col-md-3 text-center">
+            <a href="/refam/editor">
+                <button class="btn btn-success">Nuevo Artículo/Revista</button>
+            </a>
+            <a href="/refam/revistas/nueva">
+                <button class="btn btn-success my-2">Nueva Revista PDF</button>
+            </a>
+        </div>
+
+
+        <div class="col-3">
+            <form class="form-inline">
+                <div class="form-group mb-2">
+                    <select class="custom-select">
+                        <option>Acciones en lote</option>
+                    </select>
+                </div>
+                <div class="form-group mb-2">
+                    <button type="submit" class="btn btn-primary ml-2">Aplicar</button>
+                </div>
+            </form>
+        </div>
+        <div class="col-4">
+            <form class="form-inline">
+                <div class="form-group mb-2">
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Consulta">
+                    </div>
+                </div>
+                <div class="form-group mb-2">
+                    <button type="submit" class="btn btn-primary ml-2">Buscar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row heading-page content-table pt-3">
+        <div class="col-12">
+            <table class="table table-striped magazine-table mb-3">
+                <thead class="thead-dark">
+                <tr>
+                    <th>
+                        Portada
+                    </th>
+                    <th>
+                        Mes / Año
+                    </th>
+                    <th>Estatus</th>
+                    <th>Link</th>
+
+                </tr>
+                </thead>
+                <tbody>
+                <% magazines.forEach((mag, key) => { %>
+                <tr>
+                    <td>
+                        <% if (mag.coverPage === undefined
+                        || mag.coverPage === null) { %>
+                            Sin imagen
+                        <% } else { %>
+                            <% if (mag.type == 'pdf') { %>
+                                <img src="<%= mag.coverPage %>" width="200">
+                            <% } else { %>
+                                <img src="/refam/api/magazine/getCoverOfMagazine?imageName=<%= mag.coverPage %>"
+                                    width="200">
+                            <% } %>
+                        <% } %>
+
+                    </td>
+                    <!--<td>
+                        <%= mag.title %>
+                    </td> -->
+                    <td>
+                        
+                            <% if (mag.type == 'pdf') { %>
+                                <h3><%= mag.title %></h3>
+                            <% } else { %>
+                                <h3><%= mag.titleText %></h3>
+                            <% } %>
+                        
+                        <div>
+                            <%= mag.date %>
+                        </div>
+                        <input name="dateorder" type="date" value="<%= mag.dateOrder %>" typemagazine="<%= mag.type %>" itemid="<%= mag.id %>">
+                    </td>
+                    <td>
+                        <select name="status" typemagazine="<%= mag.type %>" original="<%= mag.status %>" itemid="<%= mag.id %>">
+                            <option value="0">Cancelada</option>
+                            <option value="1">Editando</option>
+                            <option value="2">Revisandose</option>
+                            <option value="3">Publicada</option>
+                        </select>
+                    </td>
+
+                    <td>
+                            <% if (mag.type == 'pdf') { %>
+                                <a href="/refam/api/magazine/getPdfMagazine/?pdfName=<%= mag.file %>"> Link </a>
+                            <% } else { %>
+                                <a href="<%= mag.data %>"> Link </a>
+                            <% } %>
+                    </td>
+
+                </tr>
+                    <% }) %>
+
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <%- include('./partials/pagination_found'); %>
+</div>
+<script src="/refam/javascript/axios.js"></script>
+<script>
+
+const actions = ["delete","edited","control","posted"]
+
+const inputsDateOrder = document.querySelectorAll("input[name=dateorder]")
+    for(let inputDateOrder of inputsDateOrder){
+        inputDateOrder.addEventListener('change' , function(e){
+            e.target.setAttribute("original" , e.target.value)
+            axios.post("/refam/api/magazineDate/", {
+                id:e.target.getAttribute("itemid"),
+                type:e.target.getAttribute("typemagazine"),
+                date:e.target.value
+            },
+                { headers: { 'Authorization': localStorage.getItem("token") } }
+            ).then( res => {
+                if(res.data.error != undefined){
+                    e.target.value = e.target.getAttribute("original")
+                    alertWarning( res.data.error )
+                }else{
+                    e.target.setAttribute("original" , e.target.value)
+                    alertSuccess( "Guardado" )
+                }
+            })
+            .catch( error => {
+                e.target.value = e.target.getAttribute("original")
+                alertWarning( error )
+            })
+            
+        })
+    }
+
+const statusSelects = document.querySelectorAll("select[name=status]")
+    for(let select of statusSelects){
+        select.value = select.getAttribute("original")
+        select.addEventListener('change' , function(e){
+            data = {}
+            if( e.target.getAttribute("typemagazine") == "pdf" ){
+                data = {pdf:true}
+            }
+            axios.post("/refam/api/magazine/"+actions[e.target.value]+"/"+e.target.getAttribute("itemid")+'?'+localStorage.getItem("token"), data ,
+                { headers: { 'Authorization': localStorage.getItem("token") } }
+            ).then( res => {
+                if(res.data.error != undefined){
+                    e.target.value = e.target.getAttribute("original")
+                    alertWarning( res.data.error )
+                }else{
+                    if(e.target.value == "delete"){
+                        e.target.parentNode.parentNode.remove()
+                    }else{
+                        e.target.setAttribute("original" , e.target.value)
+                    }
+                    alertSuccess( "Guardado" )
+                }
+            })
+            .catch( error => {
+                e.target.value = e.target.getAttribute("original")
+                alertWarning( error )
+            })
+            
+        })
+    }
+</script>
+</body>
+</html>

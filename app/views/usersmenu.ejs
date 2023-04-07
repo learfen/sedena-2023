@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('./partials/header'); %>
+</head>
+<body class="container-xl">
+<%- include('./partials/nav_bar'); %>
+
+<div class="container-fluid datos">
+    <div class="row justify-content-end heading-page heading-v1">
+        <div class="col-4">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a class="text-light" href="#">Inicio</a></li>
+                    <li class="breadcrumb-item"><a class="text-light" href="#">Usuarios</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Datos</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="col-12">
+            <div class="heading-title">
+                <h2>Usuarios</h2>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row justify-content-md-center">
+            <div class="col-md-3">
+                <div class="card-menu">
+                    <a href="/refam/usuariosDatos">
+                        <img src="/refam/svg/datos.svg" alt="">
+                    </a>
+                    <a class="d-block mt-3" href="/refam/usuariosDatos">
+                        <span class="d-block">Datos</span>
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card-menu">
+                    <a href="/refam/estadisticas">
+                        <img src="/refam/images/estadisticas.png" alt="">
+                    </a>
+                    <a class="d-block mt-3" href="/refam/estadisticas">
+                        <span class="d-block">Estadisticas</span>
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card-menu">
+                    <a href="">
+                        <img src="/refam/svg/key.svg" alt="">
+                    </a>
+                    <a class="d-block mt-3" href="">
+                        <span class="d-block">Admin</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

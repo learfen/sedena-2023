@@ -1,0 +1,46 @@
+<!-- NAVBAR-->
+<nav class="navbar navbar-expand-lg py-3 navbar-dark heading-bg-black shadow-sm">
+    <div class="container">
+        <a href="/refam/menu" class="navbar-brand">
+            <!-- Logo Image -->
+            <img src="/refam/images/logo.png" height="55" alt="" class="d-inline-block align-middle mr-2">
+            <!-- Logo Text
+              <span class="text-uppercase title-site">REFAM</span>
+              -->
+        </a>
+
+        <button type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"
+                class="navbar-toggler"><span class="navbar-toggler-icon"></span></button>
+
+        <div id="navbarSupportedContent" class="collapse navbar-collapse">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item"><a href="/refam/revistas" class="nav-link text-light">Revistas</a></li>
+                <li class="nav-item"><a href="/refam/editor.html" id="navbtneditor" class="menu-item nav-link text-light">Editor</a></li>
+                <li class="nav-item"><a href="/refam/beneficios" class="menu-item nav-link text-light">Beneficios</a></li>
+                <li class="nav-item"><a href="/refam/galeria" class="menu-item nav-link text-light">Galería</a></li>
+                <li class="nav-item"><a href="/refam/notificaciones" class="menu-item nav-link text-light">Notificaciones</a></li>
+                <li class="nav-item active">
+                    <a href="/refam/usuarios" class="menu-item nav-link text-light">
+                        Usuarios
+                        <span class="sr-only">(current)</span>
+                    </a>
+                </li>
+                <li class="nav-item"><a href="/refam/biblioteca" class="menu-item nav-link text-light">Biblioteca</a></li>
+            </ul>
+        </div>
+        <a href="/refam/login" class="navbar-brand">
+            <img class="logout-img" src="/refam/images/salir.png" alt="logout icon">
+        </a>
+    </div>
+</nav>
+
+<script id="evaluationToken">
+    if(window.location.href.replace(window.origin, "") != "/refam/login"){
+        if(localStorage.getItem("token") == undefined || localStorage.getItem("token") == ""){
+            location.href = "/refam/login"
+        }
+    }
+    document.querySelector('#evaluationToken').remove()
+    document.querySelector("#navbtneditor").href += "?token="+localStorage.getItem("token")
+</script>

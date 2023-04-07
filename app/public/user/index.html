@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link
+			href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900"
+			rel="stylesheet"
+		/>
+		<link
+			href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css"
+			rel="stylesheet"
+		/>
+		<link
+			href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css"
+			rel="stylesheet"
+		/>
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui"
+		/>
+	</head>
+	<body>
+		<div id="app">
+			<v-app id="inspire">
+				<v-app-bar app clipped-right flat height="72">
+					<v-app-bar-nav-icon></v-app-bar-nav-icon>
+					<v-spacer></v-spacer>
+
+					<v-responsive max-width="156">
+						<v-text-field
+							dense
+							flat
+							hide-details
+							rounded
+							solo-inverted
+						></v-text-field>
+					</v-responsive>
+					<v-btn icon>
+						<v-icon>mdi-magnify</v-icon>
+					</v-btn>
+
+					<v-menu left bottom>
+						<template v-slot:activator="{ on, attrs }">
+							<v-btn icon v-bind="attrs" v-on="on">
+								<v-icon>mdi-dots-vertical</v-icon>
+							</v-btn>
+						</template>
+
+						<v-list>
+							<v-list-item>
+								<v-list-item-title
+									>Cerrar sesión</v-list-item-title
+								>
+							</v-list-item>
+						</v-list>
+					</v-menu>
+				</v-app-bar>
+
+				<v-navigation-drawer
+					v-model="drawerMagazine"
+					app
+					max-width="300"
+				>
+					<v-sheet
+						color="grey lighten-5"
+						height="128"
+						width="100%"
+						v-if="false"
+					></v-sheet>
+					<h3
+						style="text-align: center"
+						class="py-3 blue white--text"
+					>
+						REVISTAS
+					</h3>
+					<v-treeview
+						v-model="tree"
+						:open="initiallyOpen"
+						:items="items"
+						item-key="id"
+						open-on-click
+						class="pl-14"
+						shaped
+					>
+						<template slot="label" slot-scope="{ item }">
+							<div
+								@click="treeOpen(item)"
+								v-if="item.type != 'button'"
+								class="d-flex pa-1"
+								style="border-bottom: 2px #ddd solid"
+							>
+								<div style="width: 30px">
+									<v-img
+										width="30"
+										height="40"
+										:src="item.cover"
+									>
+									</v-img>
+								</div>
+								<div
+									class="d-flex items-center px-1"
+									style="
+										max-width: calc(100% - 40px);
+										white-space: normal;
+									"
+								>
+									{{ item.name }}
+								</div>
+							</div>
+							<div text small v-else @click="treeOpen(item)">
+								{{ item.name }}
+							</div>
+						</template>
+					</v-treeview>
+				</v-navigation-drawer>
+
+				<v-navigation-drawer app clipped right>
+					<v-list>
+						<v-list-item v-for="n in 5" :key="n" link>
+							<v-list-item-content>
+								<v-list-item-title
+									>Item {{ n }}</v-list-item-title
+								>
+							</v-list-item-content>
+						</v-list-item>
+					</v-list>
+				</v-navigation-drawer>
+
+				<v-main>
+					<!-- close work space open -->
+					<div
+						class="container d-flex flex-row-reverse"
+						v-if="workSpaceActive != ''"
+					>
+						<v-btn
+							fab
+							color="red"
+							class="btn-close white--text"
+							small
+							@click="exitWorkSpace"
+							>x</v-btn
+						>
+					</div>
+					<!-- form magazine -->
+					<magazine-form
+						v-if="workSpaceActive=='magazine'"
+						@close="exitWorkSpace"
+						@magazine-create="magazineCreate"
+						:target="magazineTarget"
+						:magazine="magazineTargetData"
+					></magazine-form>
+
+					<!-- form article -->
+					<article-form
+						v-if="workSpaceActive=='article'"
+						@close="exitWorkSpace"
+						@article-create="articleCreate"
+						:target="articleTarget"
+						:article="articleTargetData"
+						:magazines="items.filter(item=>item.name != 'Nueva revista').map( item => item.name+'@'+item.id)"
+					></article-form>
+
+					<div v-if="workSpaceActive==''" class="d-flex flex-wrap">
+						<v-card class="ma-2" color="primary" dark width="280">
+							<v-card-title class="text-h5 font-weight-bold">
+								Revistas
+							</v-card-title>
+
+							<v-card-text style="min-height: 120px">
+								<v-btn
+									class="mb-2"
+									outlined
+									block
+									@click="magazineNewView"
+								>
+									<v-icon class="pa-2" left>
+										mdi-plus
+									</v-icon>
+									<span>Nueva revista</span>
+								</v-btn>
+								<v-btn
+									class="mb-2"
+									outlined
+									block
+									@click="drawerMagazine=true"
+								>
+									<v-icon class="pa-2" left>
+										mdi-format-list-text
+									</v-icon>
+									<span>Mis revistas</span>
+								</v-btn>
+							</v-card-text>
+
+							<v-card-actions>
+								<v-list-item class="grow">
+									<v-row align="center" justify="end">
+										<v-icon left> mdi-alert-circle </v-icon>
+										<span class="subheading mr-1"
+											>{{items.length}}</span
+										>
+										<span class="mr-1">·</span>
+										<v-icon class="mr-1">
+											mdi-heart
+										</v-icon>
+										<span class="subheading mr-2">256</span>
+										<span class="mr-1">·</span>
+										<v-icon class="mr-1">
+											mdi-share-variant
+										</v-icon>
+										<span class="subheading">45</span>
+									</v-row>
+								</v-list-item>
+							</v-card-actions>
+						</v-card>
+
+						<v-card class="ma-2" color="primary" dark width="280">
+							<v-card-title class="text-h5 font-weight-bold">
+								Suscriptores
+							</v-card-title>
+
+							<v-card-text style="min-height: 120px">
+								<v-btn
+									class="mb-2"
+									outlined
+									block
+									@click="drawerMagazine=true"
+								>
+									<v-icon class="pa-2" left>
+										mdi-format-list-text
+									</v-icon>
+									<span>Mis suscriptores</span>
+								</v-btn>
+							</v-card-text>
+
+							<v-card-actions>
+								<v-list-item class="grow">
+									<v-row align="center" justify="end">
+										<v-icon left> mdi-account-cash </v-icon>
+										<span class="subheading mr-1"
+											>$ {{suscriptors.payment}}</span
+										>
+										<span class="mr-1">·</span>
+										<v-icon class="mr-1">
+											mdi-account-box-multiple
+										</v-icon>
+										<span class="subheading mr-2"
+											>2301</span
+										>
+									</v-row>
+								</v-list-item>
+							</v-card-actions>
+						</v-card>
+					</div>
+				</v-main>
+
+				<v-footer app color="transparent" height="72" inset>
+					<v-text-field
+						background-color="grey lighten-1"
+						dense
+						flat
+						hide-details
+						rounded
+						solo
+					></v-text-field>
+				</v-footer>
+			</v-app>
+		</div>
+		<script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+		<script src="/refam/javascript/axios.js"></script>
+		<script src="base.js"></script>
+		<script src="magazine-form.vue.js"></script>
+		<script src="article-form.vue.js"></script>
+		<script>
+
+			function buttonsMagazine(magazine) {
+				return [
+					{
+						id: -1,
+						magazineId: magazine.id,
+						name: "Detalles",
+						type: "button",
+					},
+					{
+						id: 0,
+						name: "Nuevo articulo",
+						type: "button",
+					},
+				];
+			}
+
+			new Vue({
+				el: "#app",
+				vuetify: new Vuetify(),
+				data() {
+					return {
+						_idaux: 0,
+						user: { name: "daniel garcia" },
+						suscriptors: { payment: 103 },
+						workSpaceActive: "",
+						user: "1",
+						drawerMagazine: false,
+						initiallyOpen: ["magazine 1"],
+						tree: [],
+						items: [],
+						// magazine
+						magazineTarget: 0,
+						magazineTargetData: {},
+						// article
+						articleTarget: 0,
+						articleTargetData: {},
+					};
+				},
+				mounted() {
+					if (this.items.length == 0) this.magazinesGet();
+				},
+				methods: {
+					magazineCreate() {
+						this.exitWorkSpace();
+						this.magazinesGet();
+					},
+					articleCreate() {
+						this.exitWorkSpace();
+						this.magazinesGet();
+					},
+					idNew() {
+						return ++this._idaux;
+					},
+					exitWorkSpace() {
+						this.workSpaceActive = "";
+					},
+					magazineNewView() {
+						this.workSpaceActive = "magazine";
+						this.drawerMagazine = false;
+						this.magazineTarget = 0;
+						this.magazineTargetData = {};
+					},
+					articleNewView() {
+						this.workSpaceActive = "article";
+						this.drawerArticle = false;
+						this.articleTarget = 0;
+						this.articleTargetData = {};
+					},
+					magazinesGet() {
+						axios
+							.get(api("magazines"))
+							.then((res) => {
+								let magazines = [];
+								if (res.data.success) {
+									for (let magazine of res.data.success) {
+										magazines.push({
+											name: magazine.title,
+											id: magazine.id,
+											data: {
+												...magazine,
+												cover: `${tokenAdd(
+													"/my-medias/"
+												)}&url=covers/${magazine.id}`,
+											},
+											children: buttonsMagazine(magazine),
+											cover: `${tokenAdd(
+												"/my-medias/"
+											)}&url=covers/${magazine.id}`,
+										});
+									}
+									this.items = [
+										{
+											name: "Nueva revista",
+											type: "button",
+										},
+										...magazines,
+									];
+									magazines[2].data.status = 2;
+									magazines[1].data.status = 2;
+								}
+							})
+							.catch((error) => console.log(error));
+					},
+					treeOpen(item) {
+						console.log("tree open ", item);
+						let isName = item.name.toLowerCase();
+						if (isName == "detalles") {
+							this.drawerMagazine = false;
+							for (let magazine of this.items) {
+								if (magazine.id == item.magazineId) {
+									this.magazineTargetData = magazine.data;
+									this.magazineTarget = magazine.id;
+									this.workSpaceActive = "magazine";
+								}
+							}
+							return true;
+						}
+						console.log("tree open 2");
+						if (isName == "nuevo articulo") {
+							console.log("nuevo articulo");
+							this.articleNewView();
+							return true;
+						}
+						if (isName == "nueva revista") {
+							this.magazineNewView();
+							return true;
+						}
+
+						axios
+							.get(api("articles"))
+							.then((res) => {
+								let articles = [];
+								if (res.data.success) {
+									for (let magazine of res.data.success) {
+										articles.push({
+											name: magazine.title,
+											data: magazine,
+											id: magazine.id,
+											children: [
+												{
+													id: -1,
+													magazineId: magazine.id,
+													name: "Editar",
+													type: "button",
+												},
+											],
+											cover: `${tokenAdd(
+												"/my-medias/"
+											)}&url=covers/${magazine.id}`,
+										});
+									}
+								}
+								for (let magazine of this.items) {
+									if (magazine.id == item.id) {
+										magazine.children = [
+											...buttonsMagazine(magazine),
+											...articles,
+										];
+									}
+								}
+							})
+							.catch((error) => console.log(error));
+					},
+				},
+			});
+		</script>
+	</body>
+</html>

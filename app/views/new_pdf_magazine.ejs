@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        .btn-file {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-file input[type=file] {
+            position: absolute;
+            top: 0;
+            color: #033aa9;
+            right: 0;
+            min-width: 100%;
+            min-height: 100%;
+            font-size: 100px;
+            text-align: right;
+            filter: alpha(opacity=0);
+            opacity: 0;
+            outline: none;
+            background: white;
+            cursor: inherit;
+            display: block;
+        }
+
+        #img-upload {
+            width: 100%;
+        }
+
+    </style>
+
+    <%- include('./partials/header'); %>
+</head>
+<body>
+<%- include('./partials/nav_bar'); %>
+
+<div class="container-fuid datos">
+    <div class="row justify-content-end heading-page heading-v4">
+        <div class="col-4">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a class="text-light" href="#">Inicio</a></li>
+                    <li class="breadcrumb-item"><a class="text-light" href="#">Revistas</a></li>
+                    <li class="breadcrumb-item active">Nueva</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="col-12">
+            <div class="heading-title">
+                <h2>Nueva Revista PDF </h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="row heading-page content-table pt-3">
+        <div class="col-12">
+            <form class="notification-form" action="/refam/api/magazine/uploadPdfMagazine" method="post"
+                  enctype="multipart/form-data">
+                <div class="notifications-actions">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col col-md-4">
+                                <div class="form-group">
+                                    <label for="title" class="form-control">
+                                        Titulo: 
+                                        <input id="title" class="" type="text" name="title" style="border-radius:5px">
+                                    </label>
+                                    <small>Si el titulo se deja vacio, aparecera MES AÑO como titulo</small>
+                                    <span style="display:inline" class="btn btn-sm btn-primary" onclick="let title=document.querySelector('#title');title.removeAttribute('disabled');title.value=''">No es una historieta</span>
+                                    <span style="display:inline" class="btn btn-sm btn-primary" id="btnCartoon">Historieta</span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="date" class="form-control">
+                                        Corresponde al mes (Formato: DD/MM/YYYY): 
+                                        <input id="date" type="text" class="input-notification" name="date">
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label for="status" class="form-control" style="display: flex;justify-content: center;">
+                                        <span>Pública: </span>
+                                        <input  style="width: 2rem;margin-top: 3px;" type="checkbox" checked class="input-notification" id="status" name="status">
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col col-md-4">
+                                <div class="form-group">
+                                    <label for="upload-pdf" class="btn btn-secondary form-control">
+                                        <input id="upload-pdf" type="file" name="pdf" style="display:none">
+                                        Cargar PDF
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label>Imagen de Portada</label>
+                                    <div class="input-group">
+                                    <span class="input-group-btn">
+                                        <span class="btn btn-default btn-file">
+                                            Seleccionar… <input name="imgInp" type="file" id="imgInp">
+                                        </span>
+                                    </span>
+                                        <input type="text" class="form-control" readonly>
+                                    </div>
+                                    <img id='img-upload'  height="200px" width="auto"/>
+                                </div>
+                            </div>
+                            <div class="col col-md-2"></div>
+                            <div class="col col-md-2">
+                                <button class="btn btn-primary" type="submit">Guardar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+<div class="modal fade" tabindex="-1" role="dialog" id="modalPropt">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title"></h4>
+        </div>
+        <div class="modal-body"></div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">ATRAS</button>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+
+
+<script>
+
+
+    $(document).ready(function () {
+        $(document).on('change', '.btn-file :file', function () {
+            var input = $(this),
+                label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+            input.trigger('fileselect', [label]);
+        });
+
+        $('.btn-file :file').on('fileselect', function (event, label) {
+
+            var input = $(this).parents('.input-group').find(':text'),
+                log = label;
+
+            if (input.length) {
+                input.val(log);
+            } else {
+                if (log) alert(log);
+            }
+
+        });
+
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    $('#img-upload').attr('src', e.target.result);
+                }
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+
+        $("#imgInp").change(function () {
+            readURL(this);
+        });
+
+        function promptCustom( body , next ){
+            BootstrapDialog.show({
+                title: 'Solicitud de parametros',
+                body,
+                buttons: [
+                    {
+                        text: 'OK',
+                        action(dialog) {
+                            next()
+                            $('#modalPropt').modal('toggle')
+                        }
+                    }]
+            });
+            $('#modalPropt').modal('toggle')
+        }
+
+        const BootstrapDialogTitle = document.querySelector('.modal-title')
+        const BootstrapDialogBody = document.querySelector('.modal-body')
+        const BootstrapDialogFooter = document.querySelector('.modal-footer')
+        const BootstrapDialog = {
+            show({title , body , buttons }){
+                BootstrapDialogTitle.innerHTML = title
+                BootstrapDialogBody.innerHTML = body
+                if(BootstrapDialogFooter.children.length > 1){
+                    for (let index = 1; index < BootstrapDialogFooter.children.length; index++) {
+                        BootstrapDialogFooter.children[index].remove()
+                    }
+                }
+                for (let button of buttons) {
+                    let newButton = document.createElement('button')
+                    newButton.innerHTML = button.text
+                    newButton.className = 'btn btn-primary'
+                    newButton.setAttribute('type' , 'button')
+                    BootstrapDialogFooter.appendChild( newButton )
+                    newButton.addEventListener( 'click', button.action , false)
+                    
+                }
+            }
+        }
+
+        $("#btnCartoon").click(function () {
+            promptCustom(
+                'Ingrese numero de tomo: <input type=number id=n length=5 size=5>', 
+                () => { 
+                    let title=document.querySelector('#title');title.setAttribute('disabled',true);
+                    title.value = 'Sargento No.'+document.querySelector('#n').value 
+                }
+            )
+        });
+
+    });
+
+    document.querySelector("#upload-pdf").onchange = function (e) {
+        if( e.target.files.length > 0 ){
+            e.target.parentNode.classList.add("btn-success")
+        }else{
+            e.target.parentNode.classList.remove("btn-success")
+        }
+    }
+
+    inputDate = document.querySelector("#date")
+    inputDate.onchange = e => {
+        let dateArray = e.target.value.search("-") > 0 ? e.target.value.split("-") : e.target.value.split("/")
+        if( dateArray[0].length < 4 ){
+            dateArray.reverse()
+            e.target.value = dateArray .join("-") 
+        }
+        if( new Date(e.target.value) != "Invalid Date" ){
+            e.target.style = "background:green;color:#fff"
+            e.target.removeAttribute("error")
+        }else{
+            e.target.setAttribute("error" , "date")
+            e.target.style = "background:red;color:#fff"
+        }
+    }
+
+    document.querySelector("button[type=submit]").onclick = e => {
+        if( inputDate.getAttribute("error") == "date" ){
+            e.preventDefault()
+            alert("Error en la fecha")
+        }
+    }
+</script>
+</body>
+</html>

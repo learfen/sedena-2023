@@ -1,0 +1,28 @@
+{
+	"valid":{
+		"images": [
+			".png",
+			".jpg",
+			".jpeg",
+			".pdf",
+			".gif"
+		],
+		"videos": [
+			"mp4"
+		]
+	},
+	"limit":{
+		"videos":60,
+		"images":10,
+		"pdf":100
+	},
+	"storage":{
+		"images":"/refam/thumbs/",
+		"videos":"/refam/videos/",
+		"audios":"/refam/audios/"
+	},
+	"thumbs":{
+		"size":480,
+		"quality":90
+	}
+}

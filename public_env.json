@@ -1,0 +1,89 @@
+{
+  "mode":"prod",
+  "dev": {
+    "SERVER":{
+      "PORT": 3000,
+      "DOMAIN":"http://localhost",
+      "SECRET": "S3CR3TK3YF0RR3F4M#"
+    },
+    "DEBUG": 1,
+    "DB":{
+      "port":3306,
+      "name": "editor_test",
+      "user": "padmin",
+      "password": "r3v1staS3d3na*",
+      "host": "127.0.0.1",
+      "dialect": "mysql",
+      "operatorsAliases": 0,
+      "connectionLimit": 10,
+      "synchronize": false,
+      "pool": {
+        "max": 5,
+        "min": 0,
+        "acquire": 30000,
+        "idle": 10000
+      },
+      "logging": false,
+      "timezone":"-05:00",
+      "models":[
+        "user",
+        "role",
+        "gallery_image",
+        "benefit_cupon",
+        "support_request",
+        "grade",
+        "militar_zone",
+        "militar_region",
+        "pdf_magazine",
+        "article_magazine",
+        "magazine"
+      ]
+    },
+    "MODULE_ROUTES_ACTIVE": [
+      "magazine"
+    ]
+  },
+  "prod":{
+    "SERVER":{
+      "PORT": 3000,
+      "DOMAIN":"http://40.86.102.251/",
+      "SECRET": "S3CR3TK3YF0RR3F4M#"
+    },
+    "DEBUG": 1,
+    "DB":{
+      "port":3306,
+      "name": "sedenaEditor",
+      "user": "root",
+      "password": "Xtjd6!AGAgHK",
+      "host": "127.0.0.1",
+      "dialect": "mysql",
+      "operatorsAliases": 0,
+      "connectionLimit": 10,
+      "synchronize": false,
+      "pool": {
+        "max": 5,
+        "min": 0,
+        "acquire": 30000,
+        "idle": 10000
+      },
+      "logging": false,
+      "timezone":"-05:00",
+      "models":[
+        "user",
+        "role",
+        "gallery_image",
+        "benefit_cupon",
+        "support_request",
+        "grade",
+        "militar_zone",
+        "militar_region",
+        "pdf_magazine",
+        "article_magazine",
+        "magazine"
+      ]
+    },
+    "MODULE_ROUTES_ACTIVE": [
+      "magazine"
+    ]
+  }
+}

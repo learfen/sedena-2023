@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+</head>
+<body>
+	 
+	<label>Media: <input type="file" id="inputMedia"></label>
+	<form action="/refam-editor-test" method="POST">
+		<button type="submit">Enviar</button>
+	<form>
+		<div id="alertMessage"></div>
+</body>
+<script src="/refam/javascript/axios.js"></script>
+<script>
+		const alertMessage = document.querySelector('#alertMessage')
+		function alertRender(payload){
+			alertMessage.innerHTML = payload
+		}
+		function alertWarning(payload){
+			alertRender(payload)
+			alertMessage.style = 'background:red;color:#fff'
+		}
+		function alertSuccess(payload){
+			alertRender(payload)
+			alertMessage.style = 'background:green;color:#fff'
+
+		}
+		const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTgwLCJyb2xlIjoiMyIsImlhdCI6MTYzNjQyMTA1NH0.RQlqr7nWO8vL_Yqb_2vp0METGIycV9_O4FDzjNk_h9U'
+		
+		const inputMedia = document.querySelector('#inputMedia')
+		inputMedia.onchange = e => {
+			var files = e.dataTransfer ? e.dataTransfer.files : e.target.files;
+			// ...send somewhere
+			var formData = new FormData();
+			formData.append('fileid', files[0])
+			axios.post( '/refam-editor-test/?magazine=1&token='+token , formData , {
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': token ,
+					'x-access-token': token
+				}
+			})
+			.then( res => {
+				if(res.data.error){
+					alertWarning(res.data.error)
+				}else{
+					editor.AssetManager.add( res.data.result )
+					alertSuccess("Guardado")
+				}
+			}).catch(function (error) {
+				alertWarning("INTENTE EN OTRO MOMENTO O COMUNIQUESE CON EL DESARROLLADOR\n" + error)
+			})
+		}
+</script>
+</html>

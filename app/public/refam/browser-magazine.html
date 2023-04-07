@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+</head>
+<body>
+	<div id="app">
+		<select v-model="openId"  @change="open">
+			<option v-for="magazine of magazines" :value="magazine.id">{{magazine.id}} - {{magazine.title}}</option>
+		</select>
+		<div v-if="alertShow" style="position:fixed;bottom:1rem;left:1rem;padding:2rem;color:#fff" v-bind:style="'background-color:' + alertColor">
+			{{ alertText }}
+		</div>
+		<table border="1" style="margin-bottom:13rem">
+			<tr>
+				<th v-for="name of articlesKeys">{{ name }}</th>
+			</tr>
+			<tr v-for="(row, indexRow) of data">
+				<td v-for="(cell, index) of Object.values(row)">
+					{{ cell }}
+				</td>
+				<td> <a target="article" :href="'/refam/browser/article/'+row.htmlFile+'.html'">Abrir</a> </td>
+			</tr>
+		</table>
+		<iframe width="600px" height="1000px" style="max-height: 100vh;display: block;margin:0 auto;" scrolling="yes" src="#" id="article" name="article"></iframe>
+	</div>	
+</body>
+<style>
+	body{
+		font-family: Arial, Helvetica, sans-serif;
+	}
+	table{
+		font-size: 11px;
+		background-color: #304999;
+	}
+	tbody tr:nth-child(odd) {
+		background-color: #eee1eb;
+	}
+
+	tbody tr:nth-child(even) {
+		background-color: #acacac;
+	}
+</style>
+<script src="/refam/javascript/axios.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.12/vue.min.js" integrity="sha512-BKbSR+cfyxLdMAsE0naLReFSLg8/pjbgfxHh/k/kUC82Hy7r6HtR5hLhobaln2gcTvzkyyehrdREdjpsQwy2Jw==" crossorigin="anonymous"></script>
+<script>
+	new Vue({
+		el:"#app",
+		data(){ return {
+			magazines:[],
+			articlesKeys:[],
+			data:[],
+			openId:"",
+			modal:false,
+			targetRow:0,
+			alertType:'warning',
+			alertShow:false,
+			alertText:''
+		}},
+		computed:{
+			alertColor(){
+				let colors = {success:'green' , error:'red' , warning:'orange'}
+				return colors[this.alertType]
+			}
+		},
+		mounted(){
+			axios.get("/refam/browser/magazine").then( res => {
+				this.magazines = [ ...res.data ]
+			})
+		},
+		methods:{
+			open(){
+				this.articlesKeys = []
+				this.data = []
+				this.alertShow = true
+				this.alertText = 'Cargando'
+				this.alertType = 'warning'
+				axios.get("/refam/browser/magazine/"+this.openId).then( res => {
+					this.articlesKeys = Array.from(res.data).length > 0 ? [ ...Object.keys(res.data[0]) ] : []
+					this.data = [ ...Array.from(res.data) ]
+				
+					this.alertShow = false
+					
+				}).catch( e => console.log(e))
+			}
+		}
+	})
+</script>
+</html>
